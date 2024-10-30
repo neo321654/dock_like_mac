@@ -87,10 +87,16 @@ class _DockState<T extends Object> extends State<Dock<T>> {
         ),
         padding: const EdgeInsets.all(4),
         child: DragTarget<T>(
+
           onLeave: (f){
             print('dfdsdsdsdff');
+            setOutOfDock(true);
           },
-          builder: (BuildContext context, List<Object?> candidateData, List<dynamic> rejectedData) {
+          builder: ( context, candidateData,rejectedData) {
+
+            if(candidateData.isNotEmpty){
+              print('qqqqqq');
+            }
 
             return     Row(
               mainAxisSize: MainAxisSize.min,
