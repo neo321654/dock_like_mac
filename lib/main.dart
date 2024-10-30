@@ -86,27 +86,64 @@ class _DockState<T extends Object> extends State<Dock<T>> {
           color: Colors.black12,
         ),
         padding: const EdgeInsets.all(4),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: _items.map((e) {
-            return DockItem<T>(
-              key: ValueKey(e),
-              item: e,
-              globalDeltaOffset: globalDeltaOffset,
-              globalOffset: globalOffset,
-              setGlobalOffset: setGlobalOffset,
-              setOutOfDock: setOutOfDock,
-              setGlobalDeltaOffset: setGlobalDeltaOffset,
-              builder: widget.builder,
-              onDrop: onDrop,
-              isVisible: e != _itemToHide, // Determines visibility of the item.
-              isOutOfDock: isOutOfDock, // Determines visibility of the item.
+        child: DragTarget<T>(
+          onLeave: (f){
+            print('dfdsdsdsdff');
+          },
+          builder: (BuildContext context, List<Object?> candidateData, List<dynamic> rejectedData) {
 
+            return     Row(
+              mainAxisSize: MainAxisSize.min,
+              children: _items.map((e) {
+                return DockItem<T>(
+                  key: ValueKey(e),
+                  item: e,
+                  globalDeltaOffset: globalDeltaOffset,
+                  globalOffset: globalOffset,
+                  setGlobalOffset: setGlobalOffset,
+                  setOutOfDock: setOutOfDock,
+                  setGlobalDeltaOffset: setGlobalDeltaOffset,
+                  builder: widget.builder,
+                  onDrop: onDrop,
+                  isVisible: e != _itemToHide, // Determines visibility of the item.
+                  isOutOfDock: isOutOfDock, // Determines visibility of the item.
+
+                );
+              }).toList(),
             );
-          }).toList(),
+          },
+          // child:
+          // Row(
+          //   mainAxisSize: MainAxisSize.min,
+          //   children: _items.map((e) {
+          //     return DockItem<T>(
+          //       key: ValueKey(e),
+          //       item: e,
+          //       globalDeltaOffset: globalDeltaOffset,
+          //       globalOffset: globalOffset,
+          //       setGlobalOffset: setGlobalOffset,
+          //       setOutOfDock: setOutOfDock,
+          //       setGlobalDeltaOffset: setGlobalDeltaOffset,
+          //       builder: widget.builder,
+          //       onDrop: onDrop,
+          //       isVisible: e != _itemToHide, // Determines visibility of the item.
+          //       isOutOfDock: isOutOfDock, // Determines visibility of the item.
+          //
+          //     );
+          //   }).toList(),
+          // ),
         ),
       ),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+   var r = context as Element;
+    print(context.findRenderObject());
+
   }
 
   /// Handles the drop action for reordering items in the dock.
@@ -215,6 +252,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   bool isLeaving = false;
 
+  bool isOut = false;
+
 
 
   @override
@@ -234,6 +273,16 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       maintainAnimation: true,
       maintainState: true,
       child: Draggable<T>(
+        onDragUpdate: (details){
+          // print(details.delta);
+          // print(details.localPosition);
+          // print(details.globalPosition);
+          // print(details.delta);
+
+          // print(widget.globalOffset.dy-details.globalPosition.dy+34);
+          // isOut
+
+        },
         data: widget.item,
         // Data passed during drag and drop operations.
         onDragStarted: () {
@@ -272,12 +321,14 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
             widget.setGlobalDeltaOffset(offSet); // Update global delta offset.
             widget.setGlobalOffset(
                 ofToGlobal); // Update global offset based on position.
+            print(ofToGlobal);
+
           }
 
           return renderObject.globalToLocal(
               position); // Convert position to local coordinates.
         },
-        childWhenDragging: (widget.isOutOfDock)
+        childWhenDragging: (isOut)
             ? TweenAnimationBuilder<double>(
                 curve: Curves.bounceInOut,
                 tween: Tween<double>(
@@ -312,10 +363,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
           builder: (BuildContext context, candidateData, rejectedData) {
             if (candidateData.isNotEmpty) {
 
-              WidgetsBinding.instance.addPostFrameCallback((d) {
-                widget.setOutOfDock(true);
 
-              });
 
               RenderBox renderBox = context.findRenderObject()
                   as RenderBox; // Get render box for positioning.
