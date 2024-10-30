@@ -15,26 +15,28 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       home: Scaffold(
         body: Center(
-          child: Dock<IconData>(
-            items: const [
-              Icons.person,
-              Icons.message,
-              Icons.call,
-              Icons.camera,
-              Icons.photo,
-            ],
-            builder: (e) {
-              return Container(
-                constraints: const BoxConstraints(minWidth: 48),
-                height: 48,
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: Colors.primaries[e.hashCode % Colors.primaries.length],
-                ),
-                child: Center(child: Icon(e, color: Colors.white)),
-              );
-            },
+          child: DockWrapper(
+            child: Dock<IconData>(
+              items: const [
+                Icons.person,
+                Icons.message,
+                Icons.call,
+                Icons.camera,
+                Icons.photo,
+              ],
+              builder: (e) {
+                return Container(
+                  constraints: const BoxConstraints(minWidth: 48),
+                  height: 48,
+                  margin: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.primaries[e.hashCode % Colors.primaries.length],
+                  ),
+                  child: Center(child: Icon(e, color: Colors.white)),
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -450,3 +452,19 @@ class AnimatedOffsetWidget extends StatelessWidget {
     );
   }
 }
+
+class DockWrapper extends StatefulWidget {
+  const DockWrapper({required this.child, super.key});
+  final Widget child;
+
+  @override
+  State<DockWrapper> createState() => _DockWrapperState();
+}
+
+class _DockWrapperState extends State<DockWrapper> {
+  @override
+  Widget build(BuildContext context) {
+    return  widget.child;
+  }
+}
+
