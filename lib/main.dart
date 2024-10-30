@@ -89,13 +89,19 @@ class _DockState<T extends Object> extends State<Dock<T>> {
         child: DragTarget<T>(
 
           onLeave: (f){
-            print('dfdsdsdsdff');
-            setOutOfDock(true);
+            print('out');
+            WidgetsBinding.instance.addPostFrameCallback((d){
+              setOutOfDock(true);
+
+            });
           },
           builder: ( context, candidateData,rejectedData) {
 
-            if(candidateData.isNotEmpty){
-              print('qqqqqq');
+            if(candidateData.isNotEmpty && isOutOfDock){
+              WidgetsBinding.instance.addPostFrameCallback((d){
+                setOutOfDock(false);
+
+              });
             }
 
             return     Row(
