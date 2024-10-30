@@ -189,6 +189,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   /// Offset for the position when accepting a drop.
   Offset offsetToAccept = Offset.zero;
 
+
+
   @override
   void initState() {
     super.initState();
@@ -242,12 +244,40 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
           return renderObject.globalToLocal(position); // Convert position to local coordinates.
         },
-        childWhenDragging: Visibility(
-          visible:isVisible,
-          maintainSize:true,
-          maintainAnimation:true,
-          maintainState:true,
-          child :widgetFromBuilder,
+        childWhenDragging:
+        TweenAnimationBuilder<double>(
+          curve: Curves.bounceInOut,
+          tween: Tween<double>(
+            begin: 50,
+            end: 0,
+          ),
+          duration: const Duration(milliseconds: 300),
+          onEnd: (){},
+          builder: (context,size,child){
+            return SizedBox(
+              height: size,
+              width: size,
+              child: Visibility(
+                visible:isVisible,
+                maintainSize:true,
+                maintainAnimation:true,
+                maintainState:true,
+                child :widgetFromBuilder,
+              ),
+            );
+          },
+          child:
+          SizedBox(
+            height: 20,
+            width: 20,
+            child: Visibility(
+              visible:isVisible,
+              maintainSize:true,
+              maintainAnimation:true,
+              maintainState:true,
+              child :widgetFromBuilder,
+            ),
+          ),
         ),
         feedback :widgetFromBuilder,
         child :DragTarget<T>(
@@ -297,6 +327,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
             widget.onDrop(data.data ,widget.item);
           },
           onLeave:(data){
+            print('onleave');
             widget.setGlobalDeltaOffset(offsetToLeave);
             widget.onDrop(data!, widget.item);
           },
