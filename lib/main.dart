@@ -95,6 +95,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
               globalDeltaOffset: globalDeltaOffset,
               globalOffset: globalOffset,
               setGlobalOffset: setGlobalOffset,
+              setOutOfDock: setOutOfDock,
               setGlobalDeltaOffset: setGlobalDeltaOffset,
               builder: widget.builder,
               onDrop: onDrop,
@@ -148,6 +149,7 @@ class DockItem<T extends Object> extends StatefulWidget {
     required this.onDrop,
     required this.setGlobalDeltaOffset,
     required this.setGlobalOffset,
+    required this.setOutOfDock,
     required this.globalDeltaOffset,
     required this.globalOffset,
     required this.isOutOfDock,
@@ -170,6 +172,9 @@ class DockItem<T extends Object> extends StatefulWidget {
 
   /// Callback to set the global offset during dragging.
   final Function(Offset offset) setGlobalOffset;
+
+  ///
+  final Function(bool isOut) setOutOfDock;
 
   /// Current global delta offset during dragging.
   final Offset globalDeltaOffset;
@@ -306,6 +311,12 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
         child: DragTarget<T>(
           builder: (BuildContext context, candidateData, rejectedData) {
             if (candidateData.isNotEmpty) {
+
+              WidgetsBinding.instance.addPostFrameCallback((d) {
+                widget.setOutOfDock(true);
+
+              });
+
               RenderBox renderBox = context.findRenderObject()
                   as RenderBox; // Get render box for positioning.
 
