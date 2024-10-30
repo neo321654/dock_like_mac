@@ -189,6 +189,9 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   /// Offset for the position when accepting a drop.
   Offset offsetToAccept = Offset.zero;
 
+  ///
+  bool isLeaving = false;
+
 
 
   @override
@@ -245,6 +248,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
           return renderObject.globalToLocal(position); // Convert position to local coordinates.
         },
         childWhenDragging:
+        (isLeaving)?
         TweenAnimationBuilder<double>(
           curve: Curves.bounceInOut,
           tween: Tween<double>(
@@ -266,18 +270,13 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
               ),
             );
           },
-          child:
-          SizedBox(
-            height: 20,
-            width: 20,
-            child: Visibility(
-              visible:isVisible,
-              maintainSize:true,
-              maintainAnimation:true,
-              maintainState:true,
-              child :widgetFromBuilder,
-            ),
-          ),
+        ):
+        Visibility(
+          visible:isVisible,
+          maintainSize:true,
+          maintainAnimation:true,
+          maintainState:true,
+          child :widgetFromBuilder,
         ),
         feedback :widgetFromBuilder,
         child :DragTarget<T>(
