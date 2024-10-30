@@ -74,6 +74,9 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   /// The item that is currently hidden during drag.
   T? _itemToHide;
 
+  /// The item that is currently hidden during drag.
+  bool isOutOfDock = false;
+
   @override
   Widget build(BuildContext context) {
     return TapRegion(
@@ -96,6 +99,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
               builder: widget.builder,
               onDrop: onDrop,
               isVisible: e != _itemToHide, // Determines visibility of the item.
+              isOutOfDock: isOutOfDock, // Determines visibility of the item.
+
             );
           }).toList(),
         ),
@@ -125,6 +130,13 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       globalOffset = offset;
     });
   }
+
+  /// Sets the global offset during drag operations.
+  void setOutOfDock(bool isOut) {
+    setState(() {
+      isOutOfDock = isOut;
+    });
+  }
 }
 
 /// A draggable item in the dock.
@@ -138,6 +150,8 @@ class DockItem<T extends Object> extends StatefulWidget {
     required this.setGlobalOffset,
     required this.globalDeltaOffset,
     required this.globalOffset,
+    required this.isOutOfDock,
+
     this.isVisible = true,
     super.key,
   });
@@ -166,6 +180,9 @@ class DockItem<T extends Object> extends StatefulWidget {
   /// Visibility of the dock item. Defaults to true.
   final bool isVisible;
 
+  ///
+  final bool isOutOfDock;
+
   @override
   State<DockItem<T>> createState() => _DockItemState<T>();
 }
@@ -192,6 +209,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   bool isLeaving = false;
+
+
 
   @override
   void initState() {
@@ -253,7 +272,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
           return renderObject.globalToLocal(
               position); // Convert position to local coordinates.
         },
-        childWhenDragging: (true)
+        childWhenDragging: (widget.isOutOfDock)
             ? TweenAnimationBuilder<double>(
                 curve: Curves.bounceInOut,
                 tween: Tween<double>(
