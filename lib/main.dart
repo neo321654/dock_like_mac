@@ -76,29 +76,39 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: Colors.black12,
-      ),
-      padding: const EdgeInsets.all(4),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: _items.map((e) {
-          return DockItem<T>(
-            key: ValueKey(e),
-            item: e,
-            globalDeltaOffset: globalDeltaOffset,
-            globalOffset: globalOffset,
-            setGlobalOffset: setGlobalOffset,
-            setGlobalDeltaOffset: setGlobalDeltaOffset,
-            builder: widget.builder,
-            onDrop: onDrop,
-            isVisible: e != _itemToHide, // Determines visibility of the item.
-          );
-        }).toList(),
-      ),
-    );
+    return DragTarget<T>(onLeave: (f) {
+      print('out111');
+      WidgetsBinding.instance.addPostFrameCallback((d) {
+        // setOutOfDock(true);
+      });
+    }, builder: (BuildContext context, candidateData, rejectedData) {
+      if (candidateData.isNotEmpty) {
+        print('isNotEmpty');
+      }
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: Colors.black12,
+        ),
+        padding: const EdgeInsets.all(4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: _items.map((e) {
+            return DockItem<T>(
+              key: ValueKey(e),
+              item: e,
+              globalDeltaOffset: globalDeltaOffset,
+              globalOffset: globalOffset,
+              setGlobalOffset: setGlobalOffset,
+              setGlobalDeltaOffset: setGlobalDeltaOffset,
+              builder: widget.builder,
+              onDrop: onDrop,
+              isVisible: e != _itemToHide, // Determines visibility of the item.
+            );
+          }).toList(),
+        ),
+      );
+    });
   }
 
   /// Handles the drop action for reordering items in the dock.
@@ -170,7 +180,6 @@ class DockItem<T extends Object> extends StatefulWidget {
 
 /// State for [DockItem], managing its behavior and appearance during drag operations.
 class _DockItemState<T extends Object> extends State<DockItem<T>> {
-
   /// Indicates if the item is currently being dragged.
   bool isDragging = false;
 
@@ -193,18 +202,21 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   void initState() {
     super.initState();
     isVisible = widget.isVisible; // Initialize visibility state.
-    widgetFromBuilder = widget.builder(widget.item); // Create widget from builder function.
+    widgetFromBuilder =
+        widget.builder(widget.item); // Create widget from builder function.
   }
 
   @override
   Widget build(BuildContext context) {
     return Visibility(
-      visible: isVisible, // Control visibility based on state.
+      visible: isVisible,
+      // Control visibility based on state.
       maintainSize: true,
       maintainAnimation: true,
       maintainState: true,
       child: Draggable<T>(
-        data: widget.item, // Data passed during drag and drop operations.
+        data: widget.item,
+        // Data passed during drag and drop operations.
         onDragStarted: () {
           isDragging = true; // Set dragging state to true when drag starts.
           isVisible = false; // Hide the item being dragged.
@@ -229,36 +241,42 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
           isVisible = true; // Show the item again if canceled.
           resetGlobalDelta(); // Reset delta offsets after cancellation.
         },
-        dragAnchorStrategy: (Draggable<Object> draggable, BuildContext context, Offset position) {
-          RenderBox renderObject = getRenderBoxObject(context)!; // Get render object for positioning.
+        dragAnchorStrategy: (Draggable<Object> draggable, BuildContext context,
+            Offset position) {
+          RenderBox renderObject = getRenderBoxObject(
+              context)!; // Get render object for positioning.
 
           Offset? offSet = getParentOffset(renderObject); // Get parent offset.
 
           if (offSet != null) {
             Offset ofToGlobal = renderObject.localToGlobal(offSet) - offSet;
             widget.setGlobalDeltaOffset(offSet); // Update global delta offset.
-            widget.setGlobalOffset(ofToGlobal); // Update global offset based on position.
+            widget.setGlobalOffset(
+                ofToGlobal); // Update global offset based on position.
           }
 
-          return renderObject.globalToLocal(position); // Convert position to local coordinates.
+          return renderObject.globalToLocal(
+              position); // Convert position to local coordinates.
         },
         childWhenDragging: Visibility(
-          visible:isVisible,
-          maintainSize:true,
-          maintainAnimation:true,
-          maintainState:true,
-          child :widgetFromBuilder,
+          visible: isVisible,
+          maintainSize: true,
+          maintainAnimation: true,
+          maintainState: true,
+          child: widgetFromBuilder,
         ),
-        feedback :widgetFromBuilder,
-        child :DragTarget<T>(
-          builder:(BuildContext context,candidateData,rejectedData){
+        feedback: widgetFromBuilder,
+        child: DragTarget<T>(
+          builder: (BuildContext context, candidateData, rejectedData) {
             if (candidateData.isNotEmpty) {
-              RenderBox renderBox = context.findRenderObject() as RenderBox; // Get render box for positioning.
+              RenderBox renderBox = context.findRenderObject()
+                  as RenderBox; // Get render box for positioning.
 
-              Offset offsetBias = getParentOffset(renderBox) ?? Offset.zero; // Calculate offset bias.
+              Offset offsetBias = getParentOffset(renderBox) ??
+                  Offset.zero; // Calculate offset bias.
 
-              Offset ofToGlobal =
-                  renderBox.localToGlobal(offsetBias) - offsetBias; // Calculate global offset.
+              Offset ofToGlobal = renderBox.localToGlobal(offsetBias) -
+                  offsetBias; // Calculate global offset.
 
               offsetToAccept = ofToGlobal;
 
@@ -277,14 +295,14 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
               );
 
               return AnimatedOffsetWidget(
-                begin : Offset.zero,
-                end :offsetToDelta,
-                duration :const Duration(milliseconds :600),
-                child :widgetFromBuilder ,
-                builder :(context ,offset ,child){
+                begin: Offset.zero,
+                end: offsetToDelta,
+                duration: const Duration(milliseconds: 600),
+                child: widgetFromBuilder,
+                builder: (context, offset, child) {
                   return Transform.translate(
-                    offset :offset ,
-                    child :widgetFromBuilder ,
+                    offset: offset,
+                    child: widgetFromBuilder,
                   );
                 },
               );
@@ -292,11 +310,11 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
             return widgetFromBuilder; // Return default widget if no candidates are present
           },
-          onAcceptWithDetails:(data){
+          onAcceptWithDetails: (data) {
             widget.setGlobalOffset(offsetToAccept);
-            widget.onDrop(data.data ,widget.item);
+            widget.onDrop(data.data, widget.item);
           },
-          onLeave:(data){
+          onLeave: (data) {
             widget.setGlobalDeltaOffset(offsetToLeave);
             widget.onDrop(data!, widget.item);
           },
@@ -350,11 +368,10 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   }
 
   /// Shows overlay animation during drag and drop operation.
-  void showOverlayAnimation({
-    required Offset begin,
-    required Offset end,
-    required BuildContext context
-  }) {
+  void showOverlayAnimation(
+      {required Offset begin,
+      required Offset end,
+      required BuildContext context}) {
     OverlayEntry? overlayEntry;
 
     void removeOverlayEntry() {
@@ -364,30 +381,30 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     }
 
     overlayEntry = OverlayEntry(
-      builder:(BuildContext context){
+      builder: (BuildContext context) {
         return Stack(
-          fit :StackFit.expand ,
-          children :[
+          fit: StackFit.expand,
+          children: [
             Positioned(
-              top:end.dy ,
-              left:end.dx ,
-              child :Container(
-                height :64 ,
-                width :64 ,
-                color :const Color(0xffDFD9DF),
+              top: end.dy,
+              left: end.dx,
+              child: Container(
+                height: 64,
+                width: 64,
+                color: const Color(0xffDFD9DF),
               ),
             ),
             AnimatedOffsetWidget(
-              begin :begin ,
-              end :end ,
-              duration :const Duration(milliseconds :1000),
-              onEnd :removeOverlayEntry ,
-              child :widgetFromBuilder ,
-              builder :(context ,offset ,child){
+              begin: begin,
+              end: end,
+              duration: const Duration(milliseconds: 1000),
+              onEnd: removeOverlayEntry,
+              child: widgetFromBuilder,
+              builder: (context, offset, child) {
                 return Positioned(
-                  top :offset.dy ,
-                  left :offset.dx ,
-                  child :widgetFromBuilder ,
+                  top: offset.dy,
+                  left: offset.dx,
+                  child: widgetFromBuilder,
                 );
               },
             ),
@@ -396,13 +413,13 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       },
     );
 
-    Overlay.of(context).insert(overlayEntry!); // Insert overlay entry into the overlay stack
+    Overlay.of(context)
+        .insert(overlayEntry!); // Insert overlay entry into the overlay stack
   }
 }
 
 /// A widget that animates its position based on offsets during transitions.
 class AnimatedOffsetWidget extends StatelessWidget {
-
   /// Builder function that receives both current animated value and its associated child. This allows you to customize how your animated value should be rendered.
   final ValueWidgetBuilder<Offset> builder;
 
