@@ -76,7 +76,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return DragTarget<T>(onLeave: (f) {
+    return DragTarget(
+        onLeave: (f) {
       print('out111');
       WidgetsBinding.instance.addPostFrameCallback((d) {
         // setOutOfDock(true);
@@ -94,16 +95,18 @@ class _DockState<T extends Object> extends State<Dock<T>> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: _items.map((e) {
-            return DockItem<T>(
-              key: ValueKey(e),
-              item: e,
-              globalDeltaOffset: globalDeltaOffset,
-              globalOffset: globalOffset,
-              setGlobalOffset: setGlobalOffset,
-              setGlobalDeltaOffset: setGlobalDeltaOffset,
-              builder: widget.builder,
-              onDrop: onDrop,
-              isVisible: e != _itemToHide, // Determines visibility of the item.
+            return Container(
+              child: DockItem<T>(
+                key: ValueKey(e),
+                item: e,
+                globalDeltaOffset: globalDeltaOffset,
+                globalOffset: globalOffset,
+                setGlobalOffset: setGlobalOffset,
+                setGlobalDeltaOffset: setGlobalDeltaOffset,
+                builder: widget.builder,
+                onDrop: onDrop,
+                isVisible: e != _itemToHide, // Determines visibility of the item.
+              ),
             );
           }).toList(),
         ),
