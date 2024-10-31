@@ -366,16 +366,16 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
             return TweenAnimationBuilder<double>(
             curve: Curves.easeInQuint,
               tween: Tween<double>(
-                begin: 0,
-                end: itemWidth,
+                begin: itemWidth,
+                end: 0,
               ),
               duration: const Duration(milliseconds: 400),
               onEnd: () {},
               builder: (context, width, child) {
                 return Padding(
                   padding: EdgeInsets.only(
-                      left: !isRightPadding ?  0:width,
-                      right: isRightPadding ?   0:width),
+                      left: !isRightPadding ? width:0,
+                      right: isRightPadding ?  width:0),
                   child: widgetFromBuilder,
                 );
               },
