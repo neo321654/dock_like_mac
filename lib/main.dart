@@ -214,6 +214,9 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
    double itemWidth = 64;
 
+  ///
+  Offset ofToGlobal = Offset.zero;
+
 
   @override
   void initState() {
@@ -235,21 +238,35 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
           // isVisible = false; // Hide the item being dragged.
         });
       },
-      onDragUpdate: (dragUpdateDetails) {},
+      onDragUpdate: (dragUpdateDetails) {
+
+
+        // print('1${widget.globalOffset - dragUpdateDetails.globalPosition}');
+        // print('2${dragUpdateDetails.primaryDelta}');
+        // print('3${dragUpdateDetails.localPosition}');
+        // print('4${dragUpdateDetails.delta}');
+
+
+
+
+
+      },
       onDragEnd: (details) {
-        WidgetsBinding.instance.addPostFrameCallback((d) {
-          widget.setInDragTarget(false);
-        });
-
-        setState(() {
-          isDragging = true; // Set dragging state to true when drag starts.
-          // isVisible = false; // Hide the item being dragged.
-        });
-
         showOverlayAnimation(
             begin: details.offset, // Start position for overlay animation.
             end: widget.globalOffset, // End position for overlay animation.
             context: context);
+
+        WidgetsBinding.instance.addPostFrameCallback((d) {
+          widget.setInDragTarget(false);
+        });
+
+        // setState(() {
+        //   isDragging = true; // Set dragging state to true when drag starts.
+        //   // isVisible = false; // Hide the item being dragged.
+        // });
+
+
 
         resetGlobalDelta(); // Reset delta offsets after drag ends.
       },
@@ -275,7 +292,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
               ofToGlobal); // Update global offset based on position.
 
           print('GlobalDeltaOffset = $offSet');
-          print('GlobalOffset = $ofToGlobal');
+          // print('GlobalOffset = $ofToGlobal');
         }
 
         return renderObject
@@ -304,7 +321,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
             RenderBox renderBox = context.findAncestorRenderObjectOfType()!;
 
             ///
-            Offset ofToGlobal = renderBox.localToGlobal(Offset.zero);
+            ofToGlobal = renderBox.localToGlobal(Offset.zero);
 
             itemWidth = renderBox.size.width;
 
@@ -394,7 +411,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
         },
         onMove: (dragTargetDetails) {
           if (!widget.inDragTarget) {
-            print(' onMove: (dragTargetDetails) ${dragTargetDetails.offset}');
+            // print(' onMove: (dragTargetDetails) ${dragTargetDetails.offset}');
 
             setState(() {
               offMove = dragTargetDetails.offset;
@@ -402,23 +419,15 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
           }
         },
         onAcceptWithDetails: (data) {
-          widget.setGlobalOffset(offsetToAccept);
+
+          widget.setGlobalOffset(ofToGlobal);
+
           widget.onDrop(data.data, widget.item);
         },
         onLeave: (data) {
-          print('onLeave');
-
-          // setState(() {
-          //   offMove = Offset.zero;
-          // });
-
-          WidgetsBinding.instance.addPostFrameCallback((d) {
+          print('onLeave'); WidgetsBinding.instance.addPostFrameCallback((d) {
             widget.setInDragTarget(false);
-          });
-
-          // widget.setGlobalDeltaOffset(offsetToLeave);
-          // widget.onDrop(data!, widget.item);
-        },
+          }); },
       ),
     );
   }
