@@ -230,12 +230,9 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       },
       onDragUpdate: (dragUpdateDetails) {},
       onDragEnd: (details) {
-        WidgetsBinding.instance.addPostFrameCallback((d){
+        WidgetsBinding.instance.addPostFrameCallback((d) {
           widget.setInDragTarget(false);
-
         });
-
-
 
         setState(() {
           isDragging = true; // Set dragging state to true when drag starts.
@@ -287,14 +284,12 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       feedback: widgetFromBuilder,
       child: DragTarget<T>(
         builder: (BuildContext context, candidateData, rejectedData) {
-
-
           if (candidateData.isNotEmpty) {
-
             print('inDragTarget');
+
             ///устанавливаю глобальный флаг что в меня вошли
-            if(!widget.inDragTarget){
-              WidgetsBinding.instance.addPostFrameCallback((d){
+            if (!widget.inDragTarget) {
+              WidgetsBinding.instance.addPostFrameCallback((d) {
                 widget.setInDragTarget(true);
               });
             }
@@ -305,83 +300,78 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
             Offset ofToGlobal = renderBox.localToGlobal(Offset.zero);
 
             final double itemWidth = renderBox.size.width;
+
             ///
             Offset ofOfStart = widget.globalOffset - ofToGlobal;
 
             ///я рядом с точкой старта?
-            if(ofOfStart.dx.abs()<= itemWidth){
-              return  TweenAnimationBuilder<Offset>(
+            if (ofOfStart.dx.abs() <= itemWidth) {
+              return TweenAnimationBuilder<Offset>(
                 curve: Curves.easeInQuint,
                 tween: Tween<Offset>(
                   begin: Offset.zero,
                   end: ofOfStart,
                 ),
                 duration: const Duration(milliseconds: 400),
-                onEnd: (){},
-                builder:(context ,offset ,child){
-                return Transform.translate(
-                  offset :offset ,
-                  child :widgetFromBuilder ,
-                );
-              },
+                onEnd: () {},
+                builder: (context, offset, child) {
+                  return Transform.translate(
+                    offset: offset,
+                    child: widgetFromBuilder,
+                  );
+                },
                 child: widgetFromBuilder,
               );
-            }else{
-              return  Row(
-                children: [
+            } else {
+              final bool isRightPadding = (ofToGlobal - offMove).dx.isNegative;
+              print('ofOfStart - offMove = ${ofToGlobal - offMove}');
 
+              return Row(
+                children: [
                   TweenAnimationBuilder<double>(
                     curve: Curves.easeInQuint,
                     tween: Tween<double>(
                       begin: 0,
-                      end:itemWidth,
+                      end: itemWidth,
                     ),
                     duration: const Duration(milliseconds: 400),
-                    onEnd: (){},
-                    builder:(context ,width ,child){
-                      return  Padding(
-                        padding:  EdgeInsets.only(left: width/2, right: width/2),
+                    onEnd: () {},
+                    builder: (context, width, child) {
+                      return Padding(
+                        padding: EdgeInsets.only(
+                            left: !isRightPadding ? width : 0,
+                            right: isRightPadding ? width : 0),
                         child: widgetFromBuilder,
                       );
                     },
                   ),
                 ],
               );
-
             }
+          }
 
-
-            }
-
-            return widgetFromBuilder;
-
-
-
+          return widgetFromBuilder;
 
           return widgetFromBuilder; // Return default widget if no candidates are present
         },
-        onMove: (dragTargetDetails){
-          if(!widget.inDragTarget){
+        onMove: (dragTargetDetails) {
+          if (!widget.inDragTarget) {
             print(' onMove: (dragTargetDetails) ${dragTargetDetails.offset}');
 
             setState(() {
               offMove = dragTargetDetails.offset;
             });
-
           }
-
         },
         onAcceptWithDetails: (data) {
           widget.setGlobalOffset(offsetToAccept);
           widget.onDrop(data.data, widget.item);
         },
         onLeave: (data) {
-
           print('onLeave');
 
-          WidgetsBinding.instance.addPostFrameCallback((d){
+          WidgetsBinding.instance.addPostFrameCallback((d) {
             widget.setInDragTarget(false);
-
           });
 
           // widget.setGlobalDeltaOffset(offsetToLeave);
