@@ -289,6 +289,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
           if (candidateData.isNotEmpty) {
 
             print('inDragTarget');
+            ///устанавливаю глобальный флаг что в меня вошли
             if(!widget.inDragTarget){
               WidgetsBinding.instance.addPostFrameCallback((d){
                 widget.setInDragTarget(true);
@@ -323,8 +324,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
                 child: widgetFromBuilder,
               );
             }else{
-
-
               return  Row(
                 children: [
 
@@ -343,9 +342,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
                       );
                     },
                   ),
-
-
-
                 ],
               );
 
@@ -362,7 +358,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
           return widgetFromBuilder; // Return default widget if no candidates are present
         },
         onMove: (dragTargetDetails){
-           print(dragTargetDetails.offset);
+           print(' onMove: (dragTargetDetails) ${dragTargetDetails.offset}');
 
         },
         onAcceptWithDetails: (data) {
