@@ -260,10 +260,11 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
           setState(() {
             isUnLimit = true;
-          });        }else{
-          setState(() {
-            isUnLimit = false;
           });
+      }else{
+          // setState(() {
+            isUnLimit = false;
+          // });
         }
         // print(isUnLimit);
       },
@@ -380,7 +381,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
                 },
                 child: widgetFromBuilder,
               );
-            } else {
+            } else if(!isUnLimit){
                isRightPadding = (ofToGlobal - offMove).dx.isNegative;
               print('ofOfStart - offMove = ${ofToGlobal - offMove}');
 
