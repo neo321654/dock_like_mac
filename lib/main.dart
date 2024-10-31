@@ -205,6 +205,9 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   /// Offset for the position when accepting a drop.
   Offset offsetToAccept = Offset.zero;
 
+  ///
+  Offset offMove = Offset.zero;
+
   @override
   void initState() {
     super.initState();
@@ -337,7 +340,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
                     onEnd: (){},
                     builder:(context ,width ,child){
                       return  Padding(
-                        padding:  EdgeInsets.only(left: width),
+                        padding:  EdgeInsets.only(left: width/2, right: width/2),
                         child: widgetFromBuilder,
                       );
                     },
@@ -358,7 +361,14 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
           return widgetFromBuilder; // Return default widget if no candidates are present
         },
         onMove: (dragTargetDetails){
-           print(' onMove: (dragTargetDetails) ${dragTargetDetails.offset}');
+          if(!widget.inDragTarget){
+            print(' onMove: (dragTargetDetails) ${dragTargetDetails.offset}');
+
+            setState(() {
+              offMove = dragTargetDetails.offset;
+            });
+
+          }
 
         },
         onAcceptWithDetails: (data) {
