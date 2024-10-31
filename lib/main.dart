@@ -294,10 +294,12 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
             ///
             Offset ofToGlobal = renderBox.localToGlobal(Offset.zero);
+
+            final double itemWidth = renderBox.size.width;
             ///
             Offset ofOfStart = widget.globalOffset - ofToGlobal;
 
-            if(ofOfStart.dx.abs()<= renderBox.size.width){
+            if(ofOfStart.dx.abs()<= itemWidth){
 
 
               return  TweenAnimationBuilder<Offset>(
@@ -319,6 +321,31 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
 
             }else{
+
+
+              return  Row(
+                children: [
+
+                  TweenAnimationBuilder<double>(
+                    curve: Curves.easeInQuint,
+                    tween: Tween<double>(
+                      begin: 0,
+                      end:itemWidth,
+                    ),
+                    duration: const Duration(milliseconds: 400),
+                    onEnd: (){},
+                    builder:(context ,width ,child){
+                      return  Padding(
+                        padding:  EdgeInsets.only(left: width),
+                        child: widgetFromBuilder,
+                      );
+                    },
+                  ),
+
+
+
+                ],
+              );
 
             }
             // print('${(ofOfStart).dx.abs()}');
