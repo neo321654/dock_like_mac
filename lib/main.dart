@@ -370,7 +370,12 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
                 end: 0,
               ),
               duration: const Duration(milliseconds: 400),
-              onEnd: () {},
+              onEnd: () {
+              setState(() {
+                offMove = Offset.zero;
+
+              });
+              },
               builder: (context, width, child) {
                 return Padding(
                   padding: EdgeInsets.only(
