@@ -256,7 +256,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
         //  print('2 ${ofFromStart}');
         // print('3 ${widget.globalOffset-ofFromStart}');
         Offset lim = widget.globalOffset-ofFromStart;
-        if(lim.dx.abs()>itemWidth*0.9 || lim.dy.abs()>itemWidth*0.9){
+        if(lim.dx.abs()>itemWidth*0.9 && !widget.inDragTarget|| lim.dy.abs()>itemWidth*0.9&& !widget.inDragTarget){
 
           setState(() {
             isUnLimit = true;
@@ -264,8 +264,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
           setState(() {
             isUnLimit = false;
           });
-
-
         }
         // print(isUnLimit);
       },
@@ -343,6 +341,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       feedback: widgetFromBuilder,
       child: DragTarget<T>(
         builder: (BuildContext context, candidateData, rejectedData) {
+
           if (candidateData.isNotEmpty) {
             print('inDragTarget');
 
@@ -407,6 +406,9 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
                 ],
               );
             }
+
+
+
           }
 
 
@@ -437,8 +439,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
                 );
               },
             );
-
-
 
           }
           return widgetFromBuilder;
