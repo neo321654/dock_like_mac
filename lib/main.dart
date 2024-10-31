@@ -74,6 +74,9 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   /// The item that is currently hidden during drag.
   T? _itemToHide;
 
+  ///
+  bool inDragTarget = false;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -92,6 +95,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
             globalOffset: globalOffset,
             setGlobalOffset: setGlobalOffset,
             setGlobalDeltaOffset: setGlobalDeltaOffset,
+            setInDragTarget: setInDragTarget,
             builder: widget.builder,
             onDrop: onDrop,
             isVisible: e != _itemToHide, // Determines visibility of the item.
@@ -123,6 +127,13 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       globalOffset = offset;
     });
   }
+
+  ///
+  void setInDragTarget(bool inDragTarget) {
+    setState(() {
+      this.inDragTarget = inDragTarget;
+    });
+  }
 }
 
 /// A draggable item in the dock.
@@ -134,6 +145,7 @@ class DockItem<T extends Object> extends StatefulWidget {
     required this.onDrop,
     required this.setGlobalDeltaOffset,
     required this.setGlobalOffset,
+    required this.setInDragTarget,
     required this.globalDeltaOffset,
     required this.globalOffset,
     this.isVisible = true,
@@ -154,6 +166,9 @@ class DockItem<T extends Object> extends StatefulWidget {
 
   /// Callback to set the global offset during dragging.
   final Function(Offset offset) setGlobalOffset;
+
+  ///
+  final Function(bool inDragTarget) setInDragTarget;
 
   /// Current global delta offset during dragging.
   final Offset globalDeltaOffset;
@@ -232,8 +247,10 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
         if (offSet != null) {
           Offset ofToGlobal = renderObject.localToGlobal(offSet) - offSet;
+          print(ofToGlobal);
           widget.setGlobalDeltaOffset(offSet); // Update global delta offset.
           widget.setGlobalOffset(ofToGlobal); // Update global offset based on position.
+
         }
 
         return renderObject.globalToLocal(position); // Convert position to local coordinates.
@@ -249,41 +266,48 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       child :DragTarget<T>(
         builder:(BuildContext context,candidateData,rejectedData){
           if (candidateData.isNotEmpty) {
-            RenderBox renderBox = context.findRenderObject() as RenderBox; // Get render box for positioning.
 
-            Offset offsetBias = getParentOffset(renderBox) ?? Offset.zero; // Calculate offset bias.
+            widget.setInDragTarget(true);
 
-            Offset ofToGlobal =
-                renderBox.localToGlobal(offsetBias) - offsetBias; // Calculate global offset.
 
-            offsetToAccept = ofToGlobal;
+           return widgetFromBuilder;
 
-            WidgetsBinding.instance.addPostFrameCallback((d) {
-              widget.setGlobalOffset(ofToGlobal);
-            });
 
-            offsetToLeave = offsetBias;
+            // RenderBox renderBox = context.findRenderObject() as RenderBox; // Get render box for positioning.
+            //
+            // Offset offsetBias = getParentOffset(renderBox) ?? Offset.zero; // Calculate offset bias.
+            //
+            // Offset ofToGlobal =
+            //     renderBox.localToGlobal(offsetBias) - offsetBias; // Calculate global offset.
+            //
+            // offsetToAccept = ofToGlobal;
+            //
+            // WidgetsBinding.instance.addPostFrameCallback((d) {
+            //   widget.setGlobalOffset(ofToGlobal);
+            // });
+            //
+            // offsetToLeave = offsetBias;
+            //
+            // offsetToDelta = widget.globalDeltaOffset - offsetBias;
+            //
+            // // Calculate horizontal or vertical shift
+            // offsetToDelta = Offset(
+            //   renderBox.size.width * offsetToDelta.dx.sign,
+            //   offsetToDelta.dy,
+            // );
 
-            offsetToDelta = widget.globalDeltaOffset - offsetBias;
-
-            // Calculate horizontal or vertical shift
-            offsetToDelta = Offset(
-              renderBox.size.width * offsetToDelta.dx.sign,
-              offsetToDelta.dy,
-            );
-
-            return AnimatedOffsetWidget(
-              begin : Offset.zero,
-              end :offsetToDelta,
-              duration :const Duration(milliseconds :600),
-              child :widgetFromBuilder ,
-              builder :(context ,offset ,child){
-                return Transform.translate(
-                  offset :offset ,
-                  child :widgetFromBuilder ,
-                );
-              },
-            );
+            // return AnimatedOffsetWidget(
+            //   begin : Offset.zero,
+            //   end :offsetToDelta,
+            //   duration :const Duration(milliseconds :600),
+            //   child :widgetFromBuilder ,
+            //   builder :(context ,offset ,child){
+            //     return Transform.translate(
+            //       offset :offset ,
+            //       child :widgetFromBuilder ,
+            //     );
+            //   },
+            // );
           }
 
           return widgetFromBuilder; // Return default widget if no candidates are present
