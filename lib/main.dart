@@ -93,6 +93,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
             item: e,
             globalDeltaOffset: globalDeltaOffset,
             globalOffset: globalOffset,
+            inDragTarget: inDragTarget,
             setGlobalOffset: setGlobalOffset,
             setGlobalDeltaOffset: setGlobalDeltaOffset,
             setInDragTarget: setInDragTarget,
@@ -148,6 +149,7 @@ class DockItem<T extends Object> extends StatefulWidget {
     required this.setInDragTarget,
     required this.globalDeltaOffset,
     required this.globalOffset,
+    required this.inDragTarget,
     this.isVisible = true,
     super.key,
   });
@@ -178,6 +180,9 @@ class DockItem<T extends Object> extends StatefulWidget {
 
   /// Visibility of the dock item. Defaults to true.
   final bool isVisible;
+
+  ///
+  final bool inDragTarget;
 
   @override
   State<DockItem<T>> createState() => _DockItemState<T>();
