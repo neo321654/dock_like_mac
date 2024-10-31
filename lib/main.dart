@@ -208,6 +208,13 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   Offset offMove = Offset.zero;
 
+  ///
+    bool isRightPadding = false;
+
+  ///
+   double itemWidth = 64;
+
+
   @override
   void initState() {
     super.initState();
@@ -299,7 +306,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
             ///
             Offset ofToGlobal = renderBox.localToGlobal(Offset.zero);
 
-            final double itemWidth = renderBox.size.width;
+            itemWidth = renderBox.size.width;
 
             ///
             Offset ofOfStart = widget.globalOffset - ofToGlobal;
@@ -323,7 +330,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
                 child: widgetFromBuilder,
               );
             } else {
-              final bool isRightPadding = (ofToGlobal - offMove).dx.isNegative;
+               isRightPadding = (ofToGlobal - offMove).dx.isNegative;
               print('ofOfStart - offMove = ${ofToGlobal - offMove}');
 
               return Row(
@@ -350,9 +357,35 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
             }
           }
 
+
+          if(offMove!=Offset.zero){
+
+            // final bool isRightPadding = (ofToGlobal - offMove).dx.isNegative;
+            // print('ofOfStart - offMove = ${ofToGlobal - offMove}');
+
+            return TweenAnimationBuilder<double>(
+            curve: Curves.easeInQuint,
+              tween: Tween<double>(
+                begin: 0,
+                end: itemWidth,
+              ),
+              duration: const Duration(milliseconds: 400),
+              onEnd: () {},
+              builder: (context, width, child) {
+                return Padding(
+                  padding: EdgeInsets.only(
+                      left: !isRightPadding ?  0:width,
+                      right: isRightPadding ?   0:width),
+                  child: widgetFromBuilder,
+                );
+              },
+            );
+
+
+
+          }
           return widgetFromBuilder;
 
-          return widgetFromBuilder; // Return default widget if no candidates are present
         },
         onMove: (dragTargetDetails) {
           if (!widget.inDragTarget) {
@@ -369,6 +402,10 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
         },
         onLeave: (data) {
           print('onLeave');
+
+          // setState(() {
+          //   offMove = Offset.zero;
+          // });
 
           WidgetsBinding.instance.addPostFrameCallback((d) {
             widget.setInDragTarget(false);
