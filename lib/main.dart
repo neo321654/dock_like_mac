@@ -217,6 +217,17 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   Offset ofToGlobal = Offset.zero;
 
+  ///
+  Offset offsetOutOfBounds = Offset.zero;
+
+  ///
+   Offset ofFromStart = Offset.zero;
+
+  ///
+   bool isUnLimit = false;
+
+
+
 
   @override
   void initState() {
@@ -241,8 +252,19 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       onDragUpdate: (dragUpdateDetails) {
 
 
-        // print('1${widget.globalOffset - dragUpdateDetails.globalPosition}');
-        // print('2${dragUpdateDetails.primaryDelta}');
+         // print('1 ${offsetOutOfBounds }');
+        ofFromStart = dragUpdateDetails.localPosition - offsetOutOfBounds;
+
+        //  print('2 ${ofFromStart}');
+        // print('3 ${widget.globalOffset-ofFromStart}');
+        Offset lim = widget.globalOffset-ofFromStart;
+        if(lim.dx.abs()>itemWidth || lim.dy.abs()>itemWidth){
+          isUnLimit = true;
+        }else{
+          isUnLimit = false;
+
+        }
+        print(isUnLimit);
         // print('3${dragUpdateDetails.localPosition}');
         // print('4${dragUpdateDetails.delta}');
 
@@ -291,7 +313,10 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
           widget.setGlobalOffset(
               ofToGlobal); // Update global offset based on position.
 
-          print('GlobalDeltaOffset = $offSet');
+
+          offsetOutOfBounds = renderObject
+              .globalToLocal(position);
+          // print('GlobalDeltaOffset = $offSet');
           // print('GlobalOffset = $ofToGlobal');
         }
 
