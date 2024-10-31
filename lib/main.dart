@@ -227,6 +227,13 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       },
       onDragUpdate: (dragUpdateDetails) {},
       onDragEnd: (details) {
+        WidgetsBinding.instance.addPostFrameCallback((d){
+          widget.setInDragTarget(false);
+
+        });
+
+
+
         setState(() {
           isDragging = true; // Set dragging state to true when drag starts.
           // isVisible = false; // Hide the item being dragged.
@@ -274,11 +281,17 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       feedback: widgetFromBuilder,
       child: DragTarget<T>(
         builder: (BuildContext context, candidateData, rejectedData) {
+
+
           if (candidateData.isNotEmpty) {
+
             if (!widget.inDragTarget) {
+
+             RenderBox renderBox = context.findAncestorRenderObjectOfType()!;
+
+            var ofToGlobal = renderBox.localToGlobal(Offset.zero);
+
               print('inDragTarget');
-
-
               WidgetsBinding.instance.addPostFrameCallback((d){
                 widget.setInDragTarget(true);
 
@@ -325,6 +338,10 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
           }
 
           return widgetFromBuilder; // Return default widget if no candidates are present
+        },
+        onMove: (dragTargetDetails){
+          print(dragTargetDetails.offset);
+
         },
         onAcceptWithDetails: (data) {
           widget.setGlobalOffset(offsetToAccept);
