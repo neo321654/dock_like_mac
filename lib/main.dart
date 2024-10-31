@@ -288,7 +288,12 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
           if (candidateData.isNotEmpty) {
 
-            if (!widget.inDragTarget) {
+            print('inDragTarget');
+            if(!widget.inDragTarget){
+              WidgetsBinding.instance.addPostFrameCallback((d){
+                widget.setInDragTarget(true);
+              });
+            }
 
             RenderBox renderBox = context.findAncestorRenderObjectOfType()!;
 
@@ -299,9 +304,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
             ///
             Offset ofOfStart = widget.globalOffset - ofToGlobal;
 
+            ///я рядом с точкой старта?
             if(ofOfStart.dx.abs()<= itemWidth){
-
-
               return  TweenAnimationBuilder<Offset>(
                 curve: Curves.easeInQuint,
                 tween: Tween<Offset>(
@@ -318,8 +322,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
               },
                 child: widgetFromBuilder,
               );
-
-
             }else{
 
 
@@ -348,58 +350,19 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
               );
 
             }
-            // print('${(ofOfStart).dx.abs()}');
 
-              print('inDragTarget');
-              WidgetsBinding.instance.addPostFrameCallback((d){
-                widget.setInDragTarget(true);
 
-              });
             }
 
             return widgetFromBuilder;
 
-            // RenderBox renderBox = context.findRenderObject() as RenderBox; // Get render box for positioning.
-            //
-            // Offset offsetBias = getParentOffset(renderBox) ?? Offset.zero; // Calculate offset bias.
-            //
-            // Offset ofToGlobal =
-            //     renderBox.localToGlobal(offsetBias) - offsetBias; // Calculate global offset.
-            //
-            // offsetToAccept = ofToGlobal;
-            //
-            // WidgetsBinding.instance.addPostFrameCallback((d) {
-            //   widget.setGlobalOffset(ofToGlobal);
-            // });
-            //
-            // offsetToLeave = offsetBias;
-            //
-            // offsetToDelta = widget.globalDeltaOffset - offsetBias;
-            //
-            // // Calculate horizontal or vertical shift
-            // offsetToDelta = Offset(
-            //   renderBox.size.width * offsetToDelta.dx.sign,
-            //   offsetToDelta.dy,
-            // );
 
-            // return AnimatedOffsetWidget(
-            //   begin : Offset.zero,
-            //   end :offsetToDelta,
-            //   duration :const Duration(milliseconds :600),
-            //   child :widgetFromBuilder ,
-            //   builder :(context ,offset ,child){
-            //     return Transform.translate(
-            //       offset :offset ,
-            //       child :widgetFromBuilder ,
-            //     );
-            //   },
-            // );
-          }
+
 
           return widgetFromBuilder; // Return default widget if no candidates are present
         },
         onMove: (dragTargetDetails){
-          // print(dragTargetDetails.offset);
+           print(dragTargetDetails.offset);
 
         },
         onAcceptWithDetails: (data) {
