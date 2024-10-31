@@ -257,9 +257,14 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
         // print('3 ${widget.globalOffset-ofFromStart}');
         Offset lim = widget.globalOffset-ofFromStart;
         if(lim.dx.abs()>itemWidth*0.9 || lim.dy.abs()>itemWidth*0.9){
-          isUnLimit = true;
-        }else{
-          isUnLimit = false;
+
+          setState(() {
+            isUnLimit = true;
+          });        }else{
+          setState(() {
+            isUnLimit = false;
+          });
+
 
         }
         // print(isUnLimit);
@@ -314,23 +319,27 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
         return renderObject
             .globalToLocal(position); // Convert position to local coordinates.
       },
-      childWhenDragging: TweenAnimationBuilder<double>(
-        curve: Curves.easeInQuint,
-        tween: Tween<double>(
-          begin: itemWidth,
-          end: 0,
-        ),
-        duration: const Duration(milliseconds: 400),
-        onEnd: () {
-          setState(() {
-            offMove = Offset.zero;
+      childWhenDragging:
+      (isUnLimit)?
+      TweenAnimationBuilder<double>(
+          curve: Curves.easeInQuint,
+          tween: Tween<double>(
+            begin: itemWidth,
+            end: 0,
+          ),
+          duration: const Duration(milliseconds: 400),
+          onEnd: () {
+            setState(() {
+              offMove = Offset.zero;
 
-          });
-        },
-        builder: (context, width, child) {
-          return SizedBox(width: itemWidth,height: itemWidth,);
-        }
-      ),
+            });
+          },
+          builder: (context, width, child) {
+            return SizedBox(width: width,height: width,);
+          }
+      ):
+      SizedBox(width: itemWidth,height: itemWidth,),
+
       feedback: widgetFromBuilder,
       child: DragTarget<T>(
         builder: (BuildContext context, candidateData, rejectedData) {
