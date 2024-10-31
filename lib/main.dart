@@ -290,10 +290,38 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
             if (!widget.inDragTarget) {
 
-             RenderBox renderBox = context.findAncestorRenderObjectOfType()!;
+            RenderBox renderBox = context.findAncestorRenderObjectOfType()!;
 
+            ///
             Offset ofToGlobal = renderBox.localToGlobal(Offset.zero);
-            print('${(widget.globalOffset - ofToGlobal).dx.abs()}');
+            ///
+            Offset ofOfStart = widget.globalOffset - ofToGlobal;
+
+            if(ofOfStart.dx.abs()<= renderBox.size.width){
+
+
+              return  TweenAnimationBuilder<Offset>(
+                curve: Curves.easeInQuint,
+                tween: Tween<Offset>(
+                  begin: Offset.zero,
+                  end: ofOfStart,
+                ),
+                duration: const Duration(milliseconds: 400),
+                onEnd: (){},
+                builder:(context ,offset ,child){
+                return Transform.translate(
+                  offset :offset ,
+                  child :widgetFromBuilder ,
+                );
+              },
+                child: widgetFromBuilder,
+              );
+
+
+            }else{
+
+            }
+            // print('${(ofOfStart).dx.abs()}');
 
               print('inDragTarget');
               WidgetsBinding.instance.addPostFrameCallback((d){
