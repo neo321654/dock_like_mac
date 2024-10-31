@@ -422,35 +422,36 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
           }
 
 
-          if(offMove!=Offset.zero){
+          // if(offMove!=Offset.zero){
+          //
+          //   // final bool isRightPadding = (ofToGlobal - offMove).dx.isNegative;
+          //   // print('ofOfStart - offMove = ${ofToGlobal - offMove}');
+          //
+          //   return TweenAnimationBuilder<double>(
+          //   curve: Curves.easeInQuint,
+          //     tween: Tween<double>(
+          //       begin: itemWidth,
+          //       end: 0,
+          //     ),
+          //     duration: const Duration(milliseconds: 400),
+          //     onEnd: () {
+          //     setState(() {
+          //       offMove = Offset.zero;
+          //
+          //     });
+          //     },
+          //     builder: (context, width, child) {
+          //       return Padding(
+          //         padding: EdgeInsets.only(
+          //             left: !isRightPadding ? width:0,
+          //             right: isRightPadding ?  width:0),
+          //         child: widgetFromBuilder,
+          //       );
+          //     },
+          //   );
+          //
+          // }
 
-            // final bool isRightPadding = (ofToGlobal - offMove).dx.isNegative;
-            // print('ofOfStart - offMove = ${ofToGlobal - offMove}');
-
-            return TweenAnimationBuilder<double>(
-            curve: Curves.easeInQuint,
-              tween: Tween<double>(
-                begin: itemWidth,
-                end: 0,
-              ),
-              duration: const Duration(milliseconds: 400),
-              onEnd: () {
-              setState(() {
-                offMove = Offset.zero;
-
-              });
-              },
-              builder: (context, width, child) {
-                return Padding(
-                  padding: EdgeInsets.only(
-                      left: !isRightPadding ? width:0,
-                      right: isRightPadding ?  width:0),
-                  child: widgetFromBuilder,
-                );
-              },
-            );
-
-          }
           return widgetFromBuilder;
 
         },
