@@ -242,7 +242,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       data: widget.item,
       // Data passed during drag and drop operations.
       onDragStarted: () {
-        print('onDragStarted');
+        // print('onDragStarted');
 
         setState(() {
           isDragging = true; // Set dragging state to true when drag starts.
@@ -261,11 +261,19 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
           setState(() {
             isUnLimit = true;
           });
-      }else{
-          // setState(() {
+      }
+        if(widget.inDragTarget){
+
+          setState(() {
             isUnLimit = false;
-          // });
+          });
         }
+
+        // else{
+        //   setState(() {
+        //     isUnLimit = false;
+        //   });
+        // }
         // print(isUnLimit);
       },
       onDragEnd: (details) {
@@ -344,7 +352,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
         builder: (BuildContext context, candidateData, rejectedData) {
 
           if (candidateData.isNotEmpty) {
-            print('inDragTarget');
+            // print('inDragTarget');
 
             ///устанавливаю глобальный флаг что в меня вошли
             if (!widget.inDragTarget) {
@@ -381,9 +389,10 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
                 },
                 child: widgetFromBuilder,
               );
-            } else if(!isUnLimit){
+            } else if(isUnLimit){
+              print('if(isUnLimit)');
                isRightPadding = (ofToGlobal - offMove).dx.isNegative;
-              print('ofOfStart - offMove = ${ofToGlobal - offMove}');
+              // print('ofOfStart - offMove = ${ofToGlobal - offMove}');
 
               return Row(
                 children: [
@@ -461,7 +470,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
           widget.onDrop(data.data, widget.item);
         },
         onLeave: (data) {
-          print('onLeave'); WidgetsBinding.instance.addPostFrameCallback((d) {
+          // print('onLeave');
+          WidgetsBinding.instance.addPostFrameCallback((d) {
             widget.setInDragTarget(false);
           }); },
       ),
