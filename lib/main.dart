@@ -198,12 +198,17 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     return Draggable<T>(
       data: widget.item, // Data passed during drag and drop operations.
       onDragStarted: () {
-        isDragging = true; // Set dragging state to true when drag starts.
-        // isVisible = false; // Hide the item being dragged.
+        setState(() {
+          isDragging = true; // Set dragging state to true when drag starts.
+          // isVisible = false; // Hide the item being dragged.
+        });
       },
       onDragUpdate: (dragUpdateDetails){},
       onDragEnd: (details) {
-        isDragging = false; // Reset dragging state when drag ends.
+        setState(() {
+          isDragging = true; // Set dragging state to true when drag starts.
+          // isVisible = false; // Hide the item being dragged.
+        });
 
         showOverlayAnimation(
             begin: details.offset, // Start position for overlay animation.
@@ -214,12 +219,10 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       },
       onDragCompleted: () {
         isDragging = false; // Reset dragging state when drag completes.
-        isVisible = true; // Show the item again after completion.
         resetGlobalDelta(); // Reset delta offsets after drag completes.
       },
       onDraggableCanceled: (velocity, offset) {
         isDragging = false; // Reset dragging state if drag is canceled.
-        isVisible = true; // Show the item again if canceled.
         resetGlobalDelta(); // Reset delta offsets after cancellation.
       },
       dragAnchorStrategy: (Draggable<Object> draggable, BuildContext context, Offset position) {
@@ -236,7 +239,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
         return renderObject.globalToLocal(position); // Convert position to local coordinates.
       },
       childWhenDragging: Visibility(
-        visible:isVisible,
+        visible:!isDragging,
         maintainSize:true,
         maintainAnimation:true,
         maintainState:true,
