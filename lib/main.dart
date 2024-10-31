@@ -250,28 +250,19 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
         });
       },
       onDragUpdate: (dragUpdateDetails) {
-
-
          // print('1 ${offsetOutOfBounds }');
         ofFromStart = dragUpdateDetails.localPosition - offsetOutOfBounds;
 
         //  print('2 ${ofFromStart}');
         // print('3 ${widget.globalOffset-ofFromStart}');
         Offset lim = widget.globalOffset-ofFromStart;
-        if(lim.dx.abs()>itemWidth || lim.dy.abs()>itemWidth){
+        if(lim.dx.abs()>itemWidth*0.9 || lim.dy.abs()>itemWidth*0.9){
           isUnLimit = true;
         }else{
           isUnLimit = false;
 
         }
-        print(isUnLimit);
-        // print('3${dragUpdateDetails.localPosition}');
-        // print('4${dragUpdateDetails.delta}');
-
-
-
-
-
+        // print(isUnLimit);
       },
       onDragEnd: (details) {
         showOverlayAnimation(
@@ -323,12 +314,22 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
         return renderObject
             .globalToLocal(position); // Convert position to local coordinates.
       },
-      childWhenDragging: Visibility(
-        visible: !isDragging,
-        maintainSize: true,
-        maintainAnimation: true,
-        maintainState: true,
-        child: widgetFromBuilder,
+      childWhenDragging: TweenAnimationBuilder<double>(
+        curve: Curves.easeInQuint,
+        tween: Tween<double>(
+          begin: itemWidth,
+          end: 0,
+        ),
+        duration: const Duration(milliseconds: 400),
+        onEnd: () {
+          setState(() {
+            offMove = Offset.zero;
+
+          });
+        },
+        builder: (context, width, child) {
+          return SizedBox(width: itemWidth,height: itemWidth,);
+        }
       ),
       feedback: widgetFromBuilder,
       child: DragTarget<T>(
