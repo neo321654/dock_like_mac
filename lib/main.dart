@@ -266,6 +266,9 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
           widget.setGlobalDeltaOffset(offSet); // Update global delta offset.
           widget.setGlobalOffset(
               ofToGlobal); // Update global offset based on position.
+
+          print('GlobalDeltaOffset = $offSet');
+          print('GlobalOffset = $ofToGlobal');
         }
 
         return renderObject
@@ -289,7 +292,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
              RenderBox renderBox = context.findAncestorRenderObjectOfType()!;
 
-            var ofToGlobal = renderBox.localToGlobal(Offset.zero);
+            Offset ofToGlobal = renderBox.localToGlobal(Offset.zero);
+            print('${(widget.globalOffset - ofToGlobal).dx.abs()}');
 
               print('inDragTarget');
               WidgetsBinding.instance.addPostFrameCallback((d){
@@ -340,7 +344,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
           return widgetFromBuilder; // Return default widget if no candidates are present
         },
         onMove: (dragTargetDetails){
-          print(dragTargetDetails.offset);
+          // print(dragTargetDetails.offset);
 
         },
         onAcceptWithDetails: (data) {
