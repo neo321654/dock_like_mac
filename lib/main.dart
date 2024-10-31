@@ -15,28 +15,26 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       home: Scaffold(
         body: Center(
-          child: DockWrapper(
-            child: Dock<IconData>(
-              items: const [
-                Icons.person,
-                Icons.message,
-                Icons.call,
-                Icons.camera,
-                Icons.photo,
-              ],
-              builder: (e) {
-                return Container(
-                  constraints: const BoxConstraints(minWidth: 48),
-                  height: 48,
-                  margin: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.primaries[e.hashCode % Colors.primaries.length],
-                  ),
-                  child: Center(child: Icon(e, color: Colors.white)),
-                );
-              },
-            ),
+          child: Dock<IconData>(
+            items: const [
+              Icons.person,
+              Icons.message,
+              Icons.call,
+              Icons.camera,
+              Icons.photo,
+            ],
+            builder: (e) {
+              return Container(
+                constraints: const BoxConstraints(minWidth: 48),
+                height: 48,
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.primaries[e.hashCode % Colors.primaries.length],
+                ),
+                child: Center(child: Icon(e, color: Colors.white)),
+              );
+            },
           ),
         ),
       ),
@@ -176,8 +174,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   /// Indicates if the item is currently being dragged.
   bool isDragging = false;
 
-  /// Tracks visibility of the dock item.
-  late bool isVisible;
 
   /// Holds the widget created by the builder function.
   late Widget widgetFromBuilder;
@@ -194,7 +190,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   @override
   void initState() {
     super.initState();
-    isVisible = widget.isVisible; // Initialize visibility state.
     widgetFromBuilder = widget.builder(widget.item); // Create widget from builder function.
   }
 
@@ -204,7 +199,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       data: widget.item, // Data passed during drag and drop operations.
       onDragStarted: () {
         isDragging = true; // Set dragging state to true when drag starts.
-        isVisible = false; // Hide the item being dragged.
+        // isVisible = false; // Hide the item being dragged.
       },
       onDragUpdate: (dragUpdateDetails){},
       onDragEnd: (details) {
@@ -447,20 +442,3 @@ class AnimatedOffsetWidget extends StatelessWidget {
     );
   }
 }
-
-class DockWrapper extends StatefulWidget {
-  const DockWrapper({required this.child, super.key});
-  final Widget child;
-
-  @override
-  State<DockWrapper> createState() => _DockWrapperState();
-}
-
-class _DockWrapperState extends State<DockWrapper> {
-
-  @override
-  Widget build(BuildContext context) {
-    return  widget.child;
-  }
-}
-
