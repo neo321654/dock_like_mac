@@ -153,7 +153,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       axis: null,
       onDragUpdate: onDragUpdate,
       childWhenDragging: getChildWhenDragging(),
-      onDragEnd: (d) {},
+      onDragEnd: onDragEnd,
       onDragStarted: () {},
       onDraggableCanceled: (velocity, offset) {},
       onDragCompleted: () {},
@@ -181,6 +181,12 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   void onMove(DragTargetDetails details) {
     print('onMove ${details.offset}');
+  }
+
+  ///
+  void onDragEnd(DraggableDetails details) {
+    isInParentBox = true;
+    setTempHeight(itemSize.height);
   }
 
   ///
@@ -252,7 +258,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       },
             duration: const Duration(milliseconds: 300),
             builder: (context, width, child) {
-
               return SizedBox(width: width);
             },
           )
