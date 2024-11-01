@@ -155,6 +155,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       onDraggableCanceled: (velocity, offset) {},
       onDragCompleted: () {},
       dragAnchorStrategy: dragAnchorStrategy,
+      // dragAnchorStrategy: pointerDragAnchorStrategy,
       child: DragTarget(
         builder: dragTargetBuilder,
         onWillAcceptWithDetails: onWillAcceptWithDetails,
