@@ -126,12 +126,25 @@ class _DockItemState<T> extends State<DockItem<T>> {
   @override
   Widget build(BuildContext context) {
     return Draggable(
+        data: T,
         feedback: widgetFromBuilder,
         child: DragTarget(
-          builder: (BuildContext context, List<Object?> candidateData,
-              List<dynamic> rejectedData) {
+          builder: (context, candidateData, rejectedData) {
+            /// отображение когда входит нужный айтем
+            if (candidateData.isNotEmpty && candidateData.first == T) {
+              return showWidgetInDragTarget(child: widgetFromBuilder);
+            }
+
+            /// стандартное отображение
             return widgetFromBuilder;
           },
         ));
+  }
+
+  Widget showWidgetInDragTarget({required Widget child}) {
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: child,
+    );
   }
 }
