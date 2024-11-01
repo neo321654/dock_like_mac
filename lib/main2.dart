@@ -134,6 +134,9 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   double tempHeight = 0;
 
+  ///
+  Offset onDragEndOffset = Offset.zero;
+
   @override
   void initState() {
     super.initState();
@@ -157,7 +160,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       childWhenDragging: getChildWhenDragging(),
       onDragEnd: onDragEnd,
       onDragStarted: () {},
-      onDraggableCanceled: (velocity, offset) {},
+      onDraggableCanceled:onDraggableCanceled,
       onDragCompleted: onDragCompleted,
       dragAnchorStrategy: dragAnchorStrategy,
       child: DragTarget(
@@ -190,14 +193,25 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   void onDragEnd(DraggableDetails details) {
-    isInParentBox = true;
-    setTempHeight(itemSize.height);
-    showOverlayAnimation(
-        begin: details.offset, end: itemBox.topLeft, context: context);
+    onDragEndOffset = details.offset;
   }
 
   ///
-  void onDragCompleted() {}
+  void onDraggableCanceled (velocity, offset) {
+    isInParentBox = true;
+    setTempHeight(itemSize.height);
+    showOverlayAnimation(
+        begin: offset, end: itemBox.topLeft, context: context);
+  }
+
+  ///
+  void onDragCompleted() {
+
+    isInParentBox = true;
+    setTempHeight(itemSize.height);
+    showOverlayAnimation(
+        begin: onDragEndOffset, end: itemBox.topLeft, context: context);
+  }
 
   ///
   void onLeave(item) {}
