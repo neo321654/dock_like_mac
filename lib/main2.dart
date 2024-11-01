@@ -127,6 +127,9 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   Size itemSize = Size.zero;
 
+  ///
+  Rect itemBox = Rect.zero;
+
   @override
   void initState() {
     super.initState();
@@ -134,8 +137,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
     ///
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      RenderBox renderBox = context.findRenderObject()! as RenderBox;
-      setItemSize(renderBox.size);
+      RenderBox itemRenderBox = context.findRenderObject()! as RenderBox;
+      setItemParameters(itemRenderBox);
     });
   }
 
@@ -167,34 +170,43 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       Draggable<Object> draggable, BuildContext context, Offset position) {
     final RenderBox renderObject = context.findRenderObject()! as RenderBox;
 
-    ///
-    setItemSize(renderObject.size);
-    ///
-    setParentBox(renderObject);
+
 
     /// возвращаю обычный [childDragAnchorStrategy]
     return renderObject.globalToLocal(position);
   }
 
+
   ///
-  void setParentBox(RenderBox renderObject) {
-    RenderBox parent = renderObject.parent! as RenderBox;
-    Rect parentBounds = parent.paintBounds;
-    Offset topLeftGlobal = parent.localToGlobal(parentBounds.topLeft);
-    Offset bottomRightGlobal = parent.localToGlobal(parentBounds.bottomRight);
-    parentBox = Rect.fromLTRB(topLeftGlobal.dx, topLeftGlobal.dy,
+  void setItemParameters(RenderBox itemRenderBox) {
+    setState(() {
+      RenderBox parent = itemRenderBox.parent! as RenderBox;
+      parentBox = getRectBox(parent);
+      itemSize = itemRenderBox.size;
+      itemBox = getRectBox(itemRenderBox);
+    });
+  }
+
+  Rect getRectBox(RenderBox renderBox) {
+    Rect box = renderBox.paintBounds;
+    Offset topLeftGlobal = renderBox.localToGlobal(box.topLeft);
+    Offset bottomRightGlobal = renderBox.localToGlobal(box.bottomRight);
+    return Rect.fromLTRB(topLeftGlobal.dx, topLeftGlobal.dy,
         bottomRightGlobal.dx, bottomRightGlobal.dy);
   }
 
   ///
-  void setItemSize(Size itemSize) {
+  void setItemData(Size itemSize) {
     setState(() {
       this.itemSize = itemSize;
     });
   }
 
+
   ///
-  void onMove(DragTargetDetails details) {}
+  void onMove(DragTargetDetails details) {
+    print('onMove ${details.offset}');
+  }
 
   ///
   void onLeave(item) {}
@@ -239,7 +251,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
             child: Row(
               children: [
                 Padding(
-                  padding: EdgeInsets.only(left: width),
+                  // padding: EdgeInsets.only(left: width),
+                  padding: EdgeInsets.only(left: 0),
                   child: child,
                 ),
               ],
