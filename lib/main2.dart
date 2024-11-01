@@ -179,32 +179,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   }
 
   ///
-  void setItemParameters(RenderBox itemRenderBox) {
-    setState(() {
-      RenderBox parent = itemRenderBox.parent! as RenderBox;
-      parentBox = getRectBox(parent);
-      itemSize = itemRenderBox.size;
-      tempHeight = itemSize.height;
-      itemBox = getRectBox(itemRenderBox);
-    });
-  }
-
-  Rect getRectBox(RenderBox renderBox) {
-    Rect box = renderBox.paintBounds;
-    Offset topLeftGlobal = renderBox.localToGlobal(box.topLeft);
-    Offset bottomRightGlobal = renderBox.localToGlobal(box.bottomRight);
-    return Rect.fromLTRB(topLeftGlobal.dx, topLeftGlobal.dy,
-        bottomRightGlobal.dx, bottomRightGlobal.dy);
-  }
-
-  ///
-  void setItemData(Size itemSize) {
-    setState(() {
-      this.itemSize = itemSize;
-    });
-  }
-
-  ///
   void onMove(DragTargetDetails details) {
     print('onMove ${details.offset}');
   }
@@ -274,7 +248,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
         ? TweenAnimationBuilder(
             tween: Tween<double>(begin: tempHeight, end: itemSize.width),
       onEnd: (){
-        tempHeight = itemSize.width;
+              setTempHeight(itemSize.width);
       },
             duration: const Duration(milliseconds: 300),
             builder: (context, width, child) {
@@ -285,7 +259,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
         : TweenAnimationBuilder(
             tween: Tween<double>(begin: itemSize.width, end: 0),
             onEnd: (){
-              tempHeight = 0;
+              setTempHeight(0);
             },
             duration: const Duration(milliseconds: 300),
             builder: (context, width, child) {
@@ -299,4 +273,40 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     print('onWillAcceptWithDetails ${details.offset}');
     return true;
   }
+
+  ///
+  void setItemParameters(RenderBox itemRenderBox) {
+    setState(() {
+      RenderBox parent = itemRenderBox.parent! as RenderBox;
+      parentBox = getRectBox(parent);
+      itemSize = itemRenderBox.size;
+      tempHeight = itemSize.height;
+      itemBox = getRectBox(itemRenderBox);
+    });
+  }
+
+  ///
+  Rect getRectBox(RenderBox renderBox) {
+    Rect box = renderBox.paintBounds;
+    Offset topLeftGlobal = renderBox.localToGlobal(box.topLeft);
+    Offset bottomRightGlobal = renderBox.localToGlobal(box.bottomRight);
+    return Rect.fromLTRB(topLeftGlobal.dx, topLeftGlobal.dy,
+        bottomRightGlobal.dx, bottomRightGlobal.dy);
+  }
+
+  ///
+  void setItemData(Size itemSize) {
+    setState(() {
+      this.itemSize = itemSize;
+    });
+  }
+
+  ///
+  void setTempHeight(double tempHeight) {
+    setState(() {
+      this.tempHeight = tempHeight;
+    });
+  }
+
+
 }
