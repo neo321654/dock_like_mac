@@ -121,7 +121,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   late Widget widgetFromBuilder;
   ///
-  late final Rect parentBox;
+  late Rect parentBox;
 
   @override
   void initState() {
@@ -161,15 +161,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       final RenderBox renderObject = context.findRenderObject()! as RenderBox;
 
 
-      RenderBox parent = renderObject.parent!  as RenderBox;
-      Rect parentBounds = parent.paintBounds;
-      Offset topLeftGlobal = parent.localToGlobal(parentBounds.topLeft);
-      Offset bottomRightGlobal = parent.localToGlobal(parentBounds.bottomRight);
+      setParentBox(renderObject);
 
-      parentBox = Rect.fromLTRB(topLeftGlobal.dx, topLeftGlobal.dy, bottomRightGlobal.dx, bottomRightGlobal.dy);
-
-      print(parentBox);
-      renderObject.size;
       // Offset? offSet = getParentOffset(renderObject);
       //
       // if (offSet != null) {
@@ -188,6 +181,16 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       return renderObject
           .globalToLocal(position);
     }
+
+  void setParentBox(RenderBox renderObject) {
+
+    RenderBox parent = renderObject.parent!  as RenderBox;
+    Rect parentBounds = parent.paintBounds;
+    Offset topLeftGlobal = parent.localToGlobal(parentBounds.topLeft);
+    Offset bottomRightGlobal = parent.localToGlobal(parentBounds.bottomRight);
+    parentBox = Rect.fromLTRB(topLeftGlobal.dx, topLeftGlobal.dy, bottomRightGlobal.dx, bottomRightGlobal.dy);
+    print(parentBox);
+  }
 
   void onMove(DragTargetDetails details) {}
 
