@@ -131,8 +131,16 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   void initState() {
     super.initState();
     widgetFromBuilder =
-        widget.builder(widget.item); // Create widget from builder function.
+        widget.builder(widget.item);
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      RenderBox renderBox = context.findRenderObject()! as RenderBox;
+      setItemSize(renderBox.size);
+    });
+
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -224,21 +232,31 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   Widget getWidgetInDragTarget() {
-    return Container(
-      color: Colors.blueAccent,
+    return TweenAnimationBuilder(
+      tween: Tween<double>(begin: 0, end: itemSize.width),
+      duration: const Duration(milliseconds: 300),
+      builder: (context, width, child) {
+        return Container(color:Colors.red,child: Row(
+          children: [
+            Padding(padding: EdgeInsets.only(left: width),child: child,),
+          ],
+        ));
+      },
       child: widgetFromBuilder,
     );
-  }
 
+    // return Container(
+    //   color: Colors.blueAccent,
+    //   child: widgetFromBuilder,
+    // );
+
+  }
   ///
   Widget getChildWhenDragging() {
     return isInParentBox
-        ? TweenAnimationBuilder(
-            tween: Tween<double>(begin: 0, end: itemSize.width),
-            duration: const Duration(milliseconds: 300),
-            builder: (context, width, child) {
-              return SizedBox(width: width);
-            },
+        ? SizedBox(
+            height: itemSize.height,
+            width: itemSize.width,
           )
         : TweenAnimationBuilder(
             tween: Tween<double>(begin: itemSize.width, end: 0),
@@ -248,7 +266,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
             },
           );
   }
-
   ///
   bool onWillAcceptWithDetails(DragTargetDetails details) {
     return true;
