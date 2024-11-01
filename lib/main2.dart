@@ -130,17 +130,14 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   @override
   void initState() {
     super.initState();
-    widgetFromBuilder =
-        widget.builder(widget.item);
-    WidgetsBinding.instance.addPostFrameCallback((_){
+    widgetFromBuilder = widget.builder(widget.item);
+
+    ///
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       RenderBox renderBox = context.findRenderObject()! as RenderBox;
       setItemSize(renderBox.size);
     });
-
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -170,8 +167,9 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       Draggable<Object> draggable, BuildContext context, Offset position) {
     final RenderBox renderObject = context.findRenderObject()! as RenderBox;
 
+    ///
     setItemSize(renderObject.size);
-
+    ///
     setParentBox(renderObject);
 
     /// возвращаю обычный [childDragAnchorStrategy]
@@ -236,11 +234,16 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       tween: Tween<double>(begin: 0, end: itemSize.width),
       duration: const Duration(milliseconds: 300),
       builder: (context, width, child) {
-        return Container(color:Colors.red,child: Row(
-          children: [
-            Padding(padding: EdgeInsets.only(left: width),child: child,),
-          ],
-        ));
+        return Container(
+            color: Colors.red,
+            child: Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: width),
+                  child: child,
+                ),
+              ],
+            ));
       },
       child: widgetFromBuilder,
     );
@@ -249,8 +252,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     //   color: Colors.blueAccent,
     //   child: widgetFromBuilder,
     // );
-
   }
+
   ///
   Widget getChildWhenDragging() {
     return isInParentBox
@@ -266,8 +269,10 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
             },
           );
   }
+
   ///
   bool onWillAcceptWithDetails(DragTargetDetails details) {
+    print('onWillAcceptWithDetails ${details.offset}');
     return true;
   }
 }
