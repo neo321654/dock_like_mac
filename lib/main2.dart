@@ -122,6 +122,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   late Widget widgetFromBuilder;
   ///
   late Rect parentBox;
+  ///
+  bool isInParentBox = true;
 
   @override
   void initState() {
@@ -136,7 +138,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       data: widget.item,
       feedback: widgetFromBuilder,
       axis: null,
-      onDragUpdate: (d) {},
+      onDragUpdate: onDragUpdate,
       childWhenDragging: getChildWhenDragging(),
       onDragEnd: (d) {},
       onDragStarted: () {},
@@ -144,7 +146,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       onDragCompleted: () {},
       dragAnchorStrategy:dragAnchorStrategy,
       child: DragTarget(
-        builder: builder,
+        builder: dragTargetBuilder,
         onWillAcceptWithDetails: onWillAcceptWithDetails,
         onAcceptWithDetails: onAcceptWithDetails,
         onMove: onMove,
@@ -181,7 +183,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       return renderObject
           .globalToLocal(position);
     }
-
+  ///
   void setParentBox(RenderBox renderObject) {
 
     RenderBox parent = renderObject.parent!  as RenderBox;
@@ -191,14 +193,25 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     parentBox = Rect.fromLTRB(topLeftGlobal.dx, topLeftGlobal.dy, bottomRightGlobal.dx, bottomRightGlobal.dy);
     print(parentBox);
   }
-
+  ///
   void onMove(DragTargetDetails details) {}
-
+  ///
   void onLeave(item) {
 
   }
-
-  Widget builder(context, candidateData, rejectedData) {
+  ///
+  void onAcceptWithDetails(DragTargetDetails details) {
+    widget.replaceItem(
+      details.data,
+      widget.item,
+    );
+  }
+  ///
+  void onDragUpdate(DragUpdateDetails details) {
+      isInParentBox = parentBox.contains(details.globalPosition);
+  }
+  ///
+  Widget dragTargetBuilder(context, candidateData, rejectedData) {
     /// отображение когда входит нужный айтем
     if (candidateData.isNotEmpty && candidateData.first.runtimeType == T) {
       return getWidgetInDragTarget();
@@ -206,31 +219,24 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     /// стандартное отображение
     return widgetFromBuilder;
   }
-
+  ///
   Widget getWidgetInDragTarget() {
     return Container(
       color: Colors.blueAccent,
       child: widgetFromBuilder,
     );
   }
-
+  ///
   Widget getChildWhenDragging() {
     return Container(
       color: Colors.greenAccent,
       child: widgetFromBuilder,
     );
   }
-
+  ///
   bool onWillAcceptWithDetails(DragTargetDetails details) {
     print('onWillAcceptWithDetails ${details.offset}');
     return true;
   }
 
-  onAcceptWithDetails(DragTargetDetails details) {
-    widget.replaceItem(
-      details.data,
-      widget.item,
-    );
-    // print('onAcceptWithDetails ${details.offset}');
-  }
 }
