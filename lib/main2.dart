@@ -169,13 +169,9 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   Offset dragAnchorStrategy(
       Draggable<Object> draggable, BuildContext context, Offset position) {
     final RenderBox renderObject = context.findRenderObject()! as RenderBox;
-
-
-
     /// возвращаю обычный [childDragAnchorStrategy]
     return renderObject.globalToLocal(position);
   }
-
 
   ///
   void setItemParameters(RenderBox itemRenderBox) {
@@ -201,7 +197,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       this.itemSize = itemSize;
     });
   }
-
 
   ///
   void onMove(DragTargetDetails details) {
