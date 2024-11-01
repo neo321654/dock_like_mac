@@ -152,7 +152,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   Widget builder(context, candidateData, rejectedData) {
     /// отображение когда входит нужный айтем
-    if (candidateData.isNotEmpty && candidateData.first == T) {
+    if (candidateData.isNotEmpty && candidateData.first.runtimeType == T) {
       return showItemInDragTarget(child: widgetFromBuilder);
     }
 
