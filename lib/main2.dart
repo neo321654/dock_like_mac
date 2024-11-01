@@ -202,7 +202,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   void onDragUpdate(DragUpdateDetails details) {
-    final isContains = parentBox.contains(details.globalPosition);
+    final isContains = parentBox.contains(details.localPosition);
     if (isInParentBox != isContains) {
       setState(() {
         isInParentBox = isContains;
