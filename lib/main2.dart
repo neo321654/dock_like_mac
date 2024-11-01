@@ -74,29 +74,64 @@ class _DockState<T> extends State<Dock<T>> {
       padding: const EdgeInsets.all(4),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: _items.map((e)=>DockItem(builder: widget.builder, item: e,)).toList(),
+        children: _items
+            .map((e) => DockItem(
+                  builder: widget.builder,
+                  item: e,
+                  replaceItem: replaceItem,
+                ))
+            .toList(),
       ),
     );
   }
 
-
-}
-
-class DockItem<T> extends StatefulWidget {
-   const DockItem({required this.builder,required this.item, super.key});
-   final T item;
-
-   final Widget Function(T) builder;
-
-  @override
-  State <DockItem<T>>createState() => _DockItemState<T>();
-}
-
-class _DockItemState<T> extends State <DockItem<T>>{
-  @override
-  Widget build(BuildContext context) {
-    return widget.builder(widget.item);
+  ///
+  void replaceItem(T itemToReplace, T item) {
+    setState(() {
+      int index = _items.indexOf(item);
+      _items.remove(itemToReplace);
+      _items.insert(index, itemToReplace);
+    });
   }
 }
 
+class DockItem<T> extends StatefulWidget {
+  const DockItem(
+      {required this.builder,
+      required this.item,
+      required this.replaceItem,
+      super.key});
 
+  final T item;
+
+  final Widget Function(T) builder;
+
+  /// Callback function invoked when an item is dropped.
+  final Function(T itemToRemove, T item) replaceItem;
+
+  @override
+  State<DockItem<T>> createState() => _DockItemState<T>();
+}
+
+class _DockItemState<T> extends State<DockItem<T>> {
+  late Widget widgetFromBuilder;
+
+  @override
+  void initState() {
+    super.initState();
+    widgetFromBuilder =
+        widget.builder(widget.item); // Create widget from builder function.
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Draggable(
+        feedback: widgetFromBuilder,
+        child: DragTarget(
+          builder: (BuildContext context, List<Object?> candidateData,
+              List<dynamic> rejectedData) {
+            return widgetFromBuilder;
+          },
+        ));
+  }
+}
