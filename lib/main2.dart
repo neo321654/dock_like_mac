@@ -124,6 +124,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   late Rect parentBox;
   ///
   bool isInParentBox = true;
+  ///
+  Size itemSize = Size.zero;
 
   @override
   void initState() {
@@ -162,6 +164,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
       final RenderBox renderObject = context.findRenderObject()! as RenderBox;
 
+      itemSize = renderObject.size;
 
       setParentBox(renderObject);
 
@@ -208,7 +211,12 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   }
   ///
   void onDragUpdate(DragUpdateDetails details) {
-      isInParentBox = parentBox.contains(details.globalPosition);
+      final isContains =parentBox.contains(details.globalPosition);
+      if(isInParentBox != isContains){
+        setState(() {
+          isInParentBox = isContains;
+        });
+      }
   }
   ///
   Widget dragTargetBuilder(context, candidateData, rejectedData) {
@@ -228,8 +236,13 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   }
   ///
   Widget getChildWhenDragging() {
-    return Container(
+    return isInParentBox? Container(
+
       color: Colors.greenAccent,
+      child: widgetFromBuilder,
+    ):Container(
+      height: itemSize.width/2,
+      color: Colors.white38,
       child: widgetFromBuilder,
     );
   }
