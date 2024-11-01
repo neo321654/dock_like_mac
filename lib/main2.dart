@@ -161,9 +161,9 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       // dragAnchorStrategy: pointerDragAnchorStrategy,
       child: DragTarget(
         builder: dragTargetBuilder,
-        onWillAcceptWithDetails: onWillAcceptWithDetails,
+     //   onWillAcceptWithDetails: onWillAcceptWithDetails,
         onAcceptWithDetails: onAcceptWithDetails,
-        onMove: onMove,
+    //    onMove: onMove,
         onLeave: onLeave,
       ),
     );
@@ -312,6 +312,5 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       this.tempHeight = tempHeight;
     });
   }
-
 
 }
