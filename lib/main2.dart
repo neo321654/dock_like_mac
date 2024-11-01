@@ -79,3 +79,18 @@ class _DockState<T> extends State<Dock<T>> {
     );
   }
 }
+
+class DockItem<T> extends StatefulWidget {
+  const DockItem({super.key});
+
+  @override
+  State createState() => _DockItemState<T>();
+}
+
+class _DockItemState<T> extends State {
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
+}
+
