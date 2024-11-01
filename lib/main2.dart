@@ -154,6 +154,13 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
       final RenderBox renderObject = context.findRenderObject()! as RenderBox;
 
+
+      RenderBox parent = renderObject.parent!  as RenderBox;
+      Rect parentBounds = parent.paintBounds;
+      Offset topLeftGlobal = parent.localToGlobal(parentBounds.topLeft);
+      Offset bottomRightGlobal = parent.localToGlobal(parentBounds.bottomRight);
+
+
       print(renderObject.parent?.paintBounds);
       renderObject.size;
       // Offset? offSet = getParentOffset(renderObject);
