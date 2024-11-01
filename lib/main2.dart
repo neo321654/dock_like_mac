@@ -245,7 +245,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     return widgetFromBuilder;
   }
 
-  ///
+  ///h
   Widget getWidgetInDragTarget() {
     return TweenAnimationBuilder(
       tween: Tween<double>(begin: 0, end: itemSize.width),
