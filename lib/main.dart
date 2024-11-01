@@ -349,6 +349,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
       feedback: widgetFromBuilder,
       child: DragTarget<T>(
+
         builder: (BuildContext context, candidateData, rejectedData) {
 
           if (candidateData.isNotEmpty) {
