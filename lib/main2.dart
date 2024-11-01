@@ -74,23 +74,29 @@ class _DockState<T> extends State<Dock<T>> {
       padding: const EdgeInsets.all(4),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: _items.map(widget.builder).toList(),
+        children: _items.map((e)=>DockItem(builder: widget.builder, item: e,)).toList(),
       ),
     );
   }
+
+
 }
 
 class DockItem<T> extends StatefulWidget {
-  const DockItem({super.key});
+   const DockItem({required this.builder,required this.item, super.key});
+   final T item;
+
+   final Widget Function(T) builder;
 
   @override
-  State createState() => _DockItemState<T>();
+  State <DockItem<T>>createState() => _DockItemState<T>();
 }
 
-class _DockItemState<T> extends State {
+class _DockItemState<T> extends State <DockItem<T>>{
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return widget.builder(widget.item);
   }
 }
+
 
