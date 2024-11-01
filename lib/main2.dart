@@ -278,7 +278,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   bool onWillAcceptWithDetails(DragTargetDetails details) {
-    // print('onWillAcceptWithDetails ${details.offset}');
+   //todo срабатывает когда начинаешь тянуть , нужно избежать первый раз
+     print('onWillAcceptWithDetails ${details.offset}');
     return true;
   }
 
