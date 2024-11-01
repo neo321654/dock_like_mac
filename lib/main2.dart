@@ -126,6 +126,7 @@ class _DockItemState<T> extends State<DockItem<T>> {
   @override
   Widget build(BuildContext context) {
     return Draggable(
+      key: ValueKey(widget.item),
       data: T,
       feedback: widgetFromBuilder,
       onDragUpdate: (d){},
@@ -138,8 +139,10 @@ class _DockItemState<T> extends State<DockItem<T>> {
       child: DragTarget(
         builder: builder,
         onWillAcceptWithDetails: onWillAcceptWithDetails,
+        onAcceptWithDetails: onAcceptWithDetails,
         onMove: onMove,
         onLeave: onLeave,
+
       ),
     );
   }
@@ -171,7 +174,14 @@ class _DockItemState<T> extends State<DockItem<T>> {
     );
   }
 
-  bool onWillAcceptWithDetails(details){
+  bool onWillAcceptWithDetails(DragTargetDetails details){
+    // return details.data==T;
+    return false;
+  }
+
+  bool onAcceptWithDetails(DragTargetDetails details){
+    print(details.data.hashCode);
+
     return true;
   }
 }
