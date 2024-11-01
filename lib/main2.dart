@@ -126,34 +126,46 @@ class _DockItemState<T> extends State<DockItem<T>> {
   @override
   Widget build(BuildContext context) {
     return Draggable(
-        data: T,
-        feedback: widgetFromBuilder,
-        onDragUpdate: (details) {},
-        childWhenDragging: showChildWhenDragging(child: widgetFromBuilder),
-        child: DragTarget(
-          builder: (context, candidateData, rejectedData) {
-            /// отображение когда входит нужный айтем
-            if (candidateData.isNotEmpty && candidateData.first == T) {
-              return showItemInDragTarget(child: widgetFromBuilder);
-            }
-
-            /// стандартное отображение
-            return widgetFromBuilder;
-          },
-        ));
+      data: T,
+      feedback: widgetFromBuilder,
+      onDragUpdate: (details) {},
+      childWhenDragging: showChildWhenDragging(child: widgetFromBuilder),
+      onDragEnd: (details) {},
+      onDragStarted: () {},
+      onDraggableCanceled: (velocity, offset) {},
+      onDragCompleted: () {},
+      dragAnchorStrategy: childDragAnchorStrategy,
+      child: DragTarget(
+        builder: builder,
+        onWillAcceptWithDetails: onWillAcceptWithDetails,
+      ),
+    );
   }
+
+  Widget builder(context, candidateData, rejectedData) {
+        /// отображение когда входит нужный айтем
+        if (candidateData.isNotEmpty && candidateData.first == T) {
+          return showItemInDragTarget(child: widgetFromBuilder);
+        }
+        /// стандартное отображение
+        return widgetFromBuilder;
+      }
 
   Widget showItemInDragTarget({required Widget child}) {
     return Container(
-      color:Colors.blueAccent,
+      color: Colors.blueAccent,
       child: child,
     );
   }
 
   Widget showChildWhenDragging({required Widget child}) {
     return Container(
-      color:Colors.greenAccent,
+      color: Colors.greenAccent,
       child: child,
     );
+  }
+
+  bool onWillAcceptWithDetails(details){
+    return true;
   }
 }
