@@ -128,9 +128,9 @@ class _DockItemState<T> extends State<DockItem<T>> {
     return Draggable(
       data: T,
       feedback: widgetFromBuilder,
-      onDragUpdate: (details) {},
+      onDragUpdate: (d){},
       childWhenDragging: showChildWhenDragging(child: widgetFromBuilder),
-      onDragEnd: (details) {},
+      onDragEnd: (d){},
       onDragStarted: () {},
       onDraggableCanceled: (velocity, offset) {},
       onDragCompleted: () {},
@@ -138,9 +138,15 @@ class _DockItemState<T> extends State<DockItem<T>> {
       child: DragTarget(
         builder: builder,
         onWillAcceptWithDetails: onWillAcceptWithDetails,
+        onMove: onMove,
+        onLeave: onLeave,
       ),
     );
   }
+
+  void onMove( DragTargetDetails details){}
+
+  void onLeave(item) {}
 
   Widget builder(context, candidateData, rejectedData) {
         /// отображение когда входит нужный айтем
