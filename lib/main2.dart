@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
 }
 
 /// Dock of the reorderable [items].
-class Dock<T> extends StatefulWidget {
+class Dock<T extends Object> extends StatefulWidget {
   const Dock({
     super.key,
     this.items = const [],
@@ -60,7 +60,7 @@ class Dock<T> extends StatefulWidget {
 }
 
 /// State of the [Dock] used to manipulate the [_items].
-class _DockState<T> extends State<Dock<T>> {
+class _DockState<T extends Object> extends State<Dock<T>> {
   /// [T] items being manipulated.
   late final List<T> _items = widget.items.toList();
 
@@ -76,6 +76,7 @@ class _DockState<T> extends State<Dock<T>> {
         mainAxisSize: MainAxisSize.min,
         children: _items
             .map((e) => DockItem(
+                  key: ValueKey(e),
                   builder: widget.builder,
                   item: e,
                   replaceItem: replaceItem,
@@ -95,7 +96,7 @@ class _DockState<T> extends State<Dock<T>> {
   }
 }
 
-class DockItem<T> extends StatefulWidget {
+class DockItem<T extends Object> extends StatefulWidget {
   const DockItem(
       {required this.builder,
       required this.item,
@@ -113,7 +114,7 @@ class DockItem<T> extends StatefulWidget {
   State<DockItem<T>> createState() => _DockItemState<T>();
 }
 
-class _DockItemState<T> extends State<DockItem<T>> {
+class _DockItemState<T extends Object> extends State<DockItem<T>> {
   late Widget widgetFromBuilder;
 
   @override
@@ -125,13 +126,12 @@ class _DockItemState<T> extends State<DockItem<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return Draggable(
-      key: ValueKey(widget.item),
-      data: T,
+    return Draggable<T>(
+      data: widget.item,
       feedback: widgetFromBuilder,
-      onDragUpdate: (d){},
-      childWhenDragging: showChildWhenDragging(child: widgetFromBuilder),
-      onDragEnd: (d){},
+      onDragUpdate: (d) {},
+      childWhenDragging: getChildWhenDragging(),
+      onDragEnd: (d) {},
       onDragStarted: () {},
       onDraggableCanceled: (velocity, offset) {},
       onDragCompleted: () {},
@@ -142,23 +142,23 @@ class _DockItemState<T> extends State<DockItem<T>> {
         onAcceptWithDetails: onAcceptWithDetails,
         onMove: onMove,
         onLeave: onLeave,
-
       ),
     );
   }
 
-  void onMove( DragTargetDetails details){}
+  void onMove(DragTargetDetails details) {}
 
   void onLeave(item) {}
 
   Widget builder(context, candidateData, rejectedData) {
-        /// отображение когда входит нужный айтем
-        if (candidateData.isNotEmpty && candidateData.first == T) {
-          return showItemInDragTarget(child: widgetFromBuilder);
-        }
-        /// стандартное отображение
-        return widgetFromBuilder;
-      }
+    /// отображение когда входит нужный айтем
+    if (candidateData.isNotEmpty && candidateData.first == T) {
+      return showItemInDragTarget(child: widgetFromBuilder);
+    }
+
+    /// стандартное отображение
+    return widgetFromBuilder;
+  }
 
   Widget showItemInDragTarget({required Widget child}) {
     return Container(
@@ -167,21 +167,23 @@ class _DockItemState<T> extends State<DockItem<T>> {
     );
   }
 
-  Widget showChildWhenDragging({required Widget child}) {
+  Widget getChildWhenDragging() {
     return Container(
       color: Colors.greenAccent,
-      child: child,
+      child: widgetFromBuilder,
     );
   }
 
-  bool onWillAcceptWithDetails(DragTargetDetails details){
-    // return details.data==T;
-    return false;
+  bool onWillAcceptWithDetails(DragTargetDetails details) {
+    print('onWillAcceptWithDetails ${details.offset}');
+    return true;
   }
 
-  bool onAcceptWithDetails(DragTargetDetails details){
-    print(details.data.hashCode);
-
-    return true;
+  onAcceptWithDetails(DragTargetDetails details) {
+    widget.replaceItem(
+      details.data,
+      widget.item,
+    );
+    print('onAcceptWithDetails ${details.offset}');
   }
 }
