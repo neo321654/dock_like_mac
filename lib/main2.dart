@@ -138,6 +138,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     super.initState();
     widgetFromBuilder = widget.builder(widget.item);
 
+    print('initState');
     ///
     WidgetsBinding.instance.addPostFrameCallback((_) {
       RenderBox itemRenderBox = context.findRenderObject()! as RenderBox;
@@ -146,7 +147,20 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    print('didChangeDependencies');
+  }
+
+  @override
+  void didUpdateWidget(covariant DockItem<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    print('didUpdateWidget');
+  }
+
+  @override
   Widget build(BuildContext context) {
+
     return Draggable<T>(
       data: widget.item,
       feedback: widgetFromBuilder,
@@ -156,7 +170,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       onDragEnd: onDragEnd,
       onDragStarted: () {},
       onDraggableCanceled: (velocity, offset) {},
-      onDragCompleted: () {},
+      onDragCompleted: onDragCompleted,
       dragAnchorStrategy: dragAnchorStrategy,
       child: DragTarget(
         builder: dragTargetBuilder,
@@ -189,8 +203,13 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   void onDragEnd(DraggableDetails details) {
     isInParentBox = true;
-    showOverlayAnimation(begin: details.offset,end: itemBox.topLeft,context: context);
     setTempHeight(itemSize.height);
+    showOverlayAnimation(begin: details.offset,end: itemBox.topLeft,context: context);
+  }
+
+  ///
+  void onDragCompleted() {
+
   }
 
   ///
@@ -329,6 +348,10 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       overlayEntry?.remove();
       overlayEntry?.dispose();
       overlayEntry = null;
+      setState(() {
+
+      });
+      print('remove overlay');
     }
 
     overlayEntry = OverlayEntry(
@@ -340,8 +363,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
               top: end.dy,
               left: end.dx,
               child: Container(
-                height: 64,
-                width: 64,
+                height: itemSize.height,
+                width: itemSize.width,
                 color: const Color(0xffDFD9DF),
               ),
             ),
