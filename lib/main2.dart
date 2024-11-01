@@ -189,6 +189,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   void onDragEnd(DraggableDetails details) {
     isInParentBox = true;
+    showOverlayAnimation(begin: details.offset,end: itemBox.topLeft,context: context);
     setTempHeight(itemSize.height);
   }
 
@@ -315,5 +316,57 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     setState(() {
       this.tempHeight = tempHeight;
     });
+  }
+
+  ///
+  void showOverlayAnimation(
+      {required Offset begin,
+        required Offset end,
+        required BuildContext context}) {
+    OverlayEntry? overlayEntry;
+
+    void removeOverlayEntry() {
+      overlayEntry?.remove();
+      overlayEntry?.dispose();
+      overlayEntry = null;
+    }
+
+    overlayEntry = OverlayEntry(
+      builder: (BuildContext context) {
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned(
+              top: end.dy,
+              left: end.dx,
+              child: Container(
+                height: 64,
+                width: 64,
+                color: const Color(0xffDFD9DF),
+              ),
+            ),
+            TweenAnimationBuilder(
+              tween: Tween<Offset>(
+                begin: begin,
+                end: end,
+              ),
+              duration: const Duration(milliseconds: 300),
+              onEnd: removeOverlayEntry,
+              child: widgetFromBuilder,
+              builder: (context, offset, child) {
+                return Positioned(
+                  top: offset.dy,
+                  left: offset.dx,
+                  child: widgetFromBuilder,
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    Overlay.of(context)
+        .insert(overlayEntry!); // Insert overlay entry into the overlay stack
   }
 }
