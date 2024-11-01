@@ -129,13 +129,14 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     return Draggable<T>(
       data: widget.item,
       feedback: widgetFromBuilder,
+      axis: null,
       onDragUpdate: (d) {},
       childWhenDragging: getChildWhenDragging(),
       onDragEnd: (d) {},
       onDragStarted: () {},
       onDraggableCanceled: (velocity, offset) {},
       onDragCompleted: () {},
-      dragAnchorStrategy: childDragAnchorStrategy,
+      dragAnchorStrategy:dragAnchorStrategy,
       child: DragTarget(
         builder: builder,
         onWillAcceptWithDetails: onWillAcceptWithDetails,
@@ -146,24 +147,53 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     );
   }
 
+  Offset dragAnchorStrategy(Draggable<Object> draggable, BuildContext context, Offset position) {
+      // RenderBox renderObject =
+      // getRenderBoxObject(context)!;
+
+
+      final RenderBox renderObject = context.findRenderObject()! as RenderBox;
+
+      print(renderObject.parent?.paintBounds);
+      renderObject.size;
+      // Offset? offSet = getParentOffset(renderObject);
+      //
+      // if (offSet != null) {
+      //   Offset ofToGlobal = renderObject.localToGlobal(offSet) - offSet;
+      //   widget.setGlobalDeltaOffset(offSet);
+      //   widget.setGlobalOffset(
+      //       ofToGlobal);
+      //
+      //
+      //   offsetOutOfBounds = renderObject
+      //       .globalToLocal(position);
+      // }
+      renderObject.paintBounds;
+
+      /// возвращаю обычный [childDragAnchorStrategy]
+      return renderObject
+          .globalToLocal(position);
+    }
+
   void onMove(DragTargetDetails details) {}
 
-  void onLeave(item) {}
+  void onLeave(item) {
+
+  }
 
   Widget builder(context, candidateData, rejectedData) {
     /// отображение когда входит нужный айтем
     if (candidateData.isNotEmpty && candidateData.first.runtimeType == T) {
-      return showItemInDragTarget(child: widgetFromBuilder);
+      return getWidgetInDragTarget();
     }
-
     /// стандартное отображение
     return widgetFromBuilder;
   }
 
-  Widget showItemInDragTarget({required Widget child}) {
+  Widget getWidgetInDragTarget() {
     return Container(
       color: Colors.blueAccent,
-      child: child,
+      child: widgetFromBuilder,
     );
   }
 
@@ -184,6 +214,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       details.data,
       widget.item,
     );
-    print('onAcceptWithDetails ${details.offset}');
+    // print('onAcceptWithDetails ${details.offset}');
   }
 }
