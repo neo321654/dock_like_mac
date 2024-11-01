@@ -140,28 +140,15 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     widgetFromBuilder = widget.builder(widget.item);
 
     print('initState');
+
     ///
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      setItemParameters(context:context);
+      setItemParameters(context: context);
     });
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    print('didChangeDependencies');
-  }
-
-  // @override
-  // void didUpdateWidget(covariant DockItem<T> oldWidget) {
-  //   super.didUpdateWidget(oldWidget);
-  //   print('didUpdateWidget');
-  //   setItemParameters(context:context);
-  // }
-
-  @override
   Widget build(BuildContext context) {
-
     return Draggable<T>(
       data: widget.item,
       feedback: widgetFromBuilder,
@@ -205,13 +192,12 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   void onDragEnd(DraggableDetails details) {
     isInParentBox = true;
     setTempHeight(itemSize.height);
-    showOverlayAnimation(begin: details.offset,end: itemBox.topLeft,context: context);
+    showOverlayAnimation(
+        begin: details.offset, end: itemBox.topLeft, context: context);
   }
 
   ///
-  void onDragCompleted() {
-
-  }
+  void onDragCompleted() {}
 
   ///
   void onLeave(item) {}
@@ -299,8 +285,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   bool onWillAcceptWithDetails(DragTargetDetails details) {
-   //todo срабатывает когда начинаешь тянуть , нужно избежать первый раз
-     print('onWillAcceptWithDetails ${details.offset}');
+    //todo срабатывает когда начинаешь тянуть , нужно избежать первый раз
+    print('onWillAcceptWithDetails ${details.offset}');
     return true;
   }
 
@@ -335,15 +321,14 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   void showOverlayAnimation(
       {required Offset begin,
-        required Offset end,
-        required BuildContext context}) {
+      required Offset end,
+      required BuildContext context}) {
     OverlayEntry? overlayEntry;
 
     void removeOverlayEntry() {
       overlayEntry?.remove();
       overlayEntry?.dispose();
       overlayEntry = null;
-      print('remove overlay');
     }
 
     overlayEntry = OverlayEntry(
