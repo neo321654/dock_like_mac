@@ -157,32 +157,19 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     );
   }
 
+  ///
   Offset dragAnchorStrategy(
       Draggable<Object> draggable, BuildContext context, Offset position) {
-    // RenderBox renderObject =
-    // getRenderBoxObject(context)!;
-
     final RenderBox renderObject = context.findRenderObject()! as RenderBox;
 
     setItemSize(renderObject.size);
 
     setParentBox(renderObject);
 
-    // Offset? offSet = getParentOffset(renderObject);
-    //
-    // if (offSet != null) {
-    //   Offset ofToGlobal = renderObject.localToGlobal(offSet) - offSet;
-    //   widget.setGlobalDeltaOffset(offSet);
-    //   widget.setGlobalOffset(
-    //       ofToGlobal);
-    //
-    //
-    //   offsetOutOfBounds = renderObject
-    //       .globalToLocal(position);
-    // }
     /// возвращаю обычный [childDragAnchorStrategy]
     return renderObject.globalToLocal(position);
   }
+
   ///
   void setParentBox(RenderBox renderObject) {
     RenderBox parent = renderObject.parent! as RenderBox;
@@ -192,16 +179,20 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     parentBox = Rect.fromLTRB(topLeftGlobal.dx, topLeftGlobal.dy,
         bottomRightGlobal.dx, bottomRightGlobal.dy);
   }
+
   ///
   void setItemSize(Size itemSize) {
     setState(() {
       this.itemSize = itemSize;
     });
   }
+
   ///
   void onMove(DragTargetDetails details) {}
+
   ///
   void onLeave(item) {}
+
   ///
   void onAcceptWithDetails(DragTargetDetails details) {
     widget.replaceItem(
@@ -209,6 +200,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       widget.item,
     );
   }
+
   ///
   void onDragUpdate(DragUpdateDetails details) {
     final isContains = parentBox.contains(details.globalPosition);
@@ -218,6 +210,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       });
     }
   }
+
   ///
   Widget dragTargetBuilder(context, candidateData, rejectedData) {
     /// отображение когда входит нужный айтем
@@ -228,6 +221,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     /// стандартное отображение
     return widgetFromBuilder;
   }
+
   ///
   Widget getWidgetInDragTarget() {
     return Container(
@@ -235,19 +229,26 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       child: widgetFromBuilder,
     );
   }
+
   ///
   Widget getChildWhenDragging() {
     return isInParentBox
-        ? SizedBox(
-            height: itemSize.height,
-            width: itemSize.width,
+        ? TweenAnimationBuilder(
+            tween: Tween<double>(begin: 0, end: itemSize.width),
+            duration: const Duration(milliseconds: 300),
+            builder: (context, width, child) {
+              return SizedBox(width: width);
+            },
           )
-        : Container(
-            height: itemSize.width / 2,
-            color: Colors.white38,
-            child: widgetFromBuilder,
+        : TweenAnimationBuilder(
+            tween: Tween<double>(begin: itemSize.width, end: 0),
+            duration: const Duration(milliseconds: 300),
+            builder: (context, width, child) {
+              return SizedBox(width: width);
+            },
           );
   }
+
   ///
   bool onWillAcceptWithDetails(DragTargetDetails details) {
     return true;
