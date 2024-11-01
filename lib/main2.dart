@@ -158,12 +158,15 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       onDraggableCanceled: (velocity, offset) {},
       onDragCompleted: () {},
       dragAnchorStrategy: dragAnchorStrategy,
-      // dragAnchorStrategy: pointerDragAnchorStrategy,
       child: DragTarget(
         builder: dragTargetBuilder,
-     //   onWillAcceptWithDetails: onWillAcceptWithDetails,
+
+        ///bug on web
+        onWillAcceptWithDetails: onWillAcceptWithDetails,
         onAcceptWithDetails: onAcceptWithDetails,
-    //    onMove: onMove,
+
+        ///bug on web
+        onMove: onMove,
         onLeave: onLeave,
       ),
     );
@@ -180,7 +183,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   void onMove(DragTargetDetails details) {
-    print('onMove ${details.offset}');
+    // print('onMove ${details.offset}');
   }
 
   ///
@@ -253,9 +256,9 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     return isInParentBox
         ? TweenAnimationBuilder(
             tween: Tween<double>(begin: tempHeight, end: itemSize.width),
-      onEnd: (){
+            onEnd: () {
               setTempHeight(itemSize.width);
-      },
+            },
             duration: const Duration(milliseconds: 300),
             builder: (context, width, child) {
               return SizedBox(width: width);
@@ -263,7 +266,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
           )
         : TweenAnimationBuilder(
             tween: Tween<double>(begin: itemSize.width, end: 0),
-            onEnd: (){
+            onEnd: () {
               setTempHeight(0);
             },
             duration: const Duration(milliseconds: 300),
@@ -275,7 +278,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   bool onWillAcceptWithDetails(DragTargetDetails details) {
-    print('onWillAcceptWithDetails ${details.offset}');
+    // print('onWillAcceptWithDetails ${details.offset}');
     return true;
   }
 
@@ -312,5 +315,4 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       this.tempHeight = tempHeight;
     });
   }
-
 }
