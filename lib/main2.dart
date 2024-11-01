@@ -97,7 +97,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 }
 
 class DockItem<T extends Object> extends StatefulWidget {
-   const DockItem(
+  const DockItem(
       {required this.builder,
       required this.item,
       required this.replaceItem,
@@ -110,20 +110,20 @@ class DockItem<T extends Object> extends StatefulWidget {
   /// Callback function invoked when an item is dropped.
   final Function(T itemToRemove, T item) replaceItem;
 
-
-
   @override
   State<DockItem<T>> createState() => _DockItemState<T>();
 }
 
 class _DockItemState<T extends Object> extends State<DockItem<T>> {
-
   ///
   late Widget widgetFromBuilder;
+
   ///
   late Rect parentBox;
+
   ///
   bool isInParentBox = true;
+
   ///
   Size itemSize = Size.zero;
 
@@ -146,7 +146,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       onDragStarted: () {},
       onDraggableCanceled: (velocity, offset) {},
       onDragCompleted: () {},
-      dragAnchorStrategy:dragAnchorStrategy,
+      dragAnchorStrategy: dragAnchorStrategy,
       child: DragTarget(
         builder: dragTargetBuilder,
         onWillAcceptWithDetails: onWillAcceptWithDetails,
@@ -157,51 +157,51 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     );
   }
 
-  Offset dragAnchorStrategy(Draggable<Object> draggable, BuildContext context, Offset position) {
-      // RenderBox renderObject =
-      // getRenderBoxObject(context)!;
+  Offset dragAnchorStrategy(
+      Draggable<Object> draggable, BuildContext context, Offset position) {
+    // RenderBox renderObject =
+    // getRenderBoxObject(context)!;
 
+    final RenderBox renderObject = context.findRenderObject()! as RenderBox;
 
-      final RenderBox renderObject = context.findRenderObject()! as RenderBox;
+    setItemSize(renderObject.size);
 
-      itemSize = renderObject.size;
+    setParentBox(renderObject);
 
-      setParentBox(renderObject);
-
-      // Offset? offSet = getParentOffset(renderObject);
-      //
-      // if (offSet != null) {
-      //   Offset ofToGlobal = renderObject.localToGlobal(offSet) - offSet;
-      //   widget.setGlobalDeltaOffset(offSet);
-      //   widget.setGlobalOffset(
-      //       ofToGlobal);
-      //
-      //
-      //   offsetOutOfBounds = renderObject
-      //       .globalToLocal(position);
-      // }
-      renderObject.paintBounds;
-
-      /// возвращаю обычный [childDragAnchorStrategy]
-      return renderObject
-          .globalToLocal(position);
-    }
+    // Offset? offSet = getParentOffset(renderObject);
+    //
+    // if (offSet != null) {
+    //   Offset ofToGlobal = renderObject.localToGlobal(offSet) - offSet;
+    //   widget.setGlobalDeltaOffset(offSet);
+    //   widget.setGlobalOffset(
+    //       ofToGlobal);
+    //
+    //
+    //   offsetOutOfBounds = renderObject
+    //       .globalToLocal(position);
+    // }
+    /// возвращаю обычный [childDragAnchorStrategy]
+    return renderObject.globalToLocal(position);
+  }
   ///
   void setParentBox(RenderBox renderObject) {
-
-    RenderBox parent = renderObject.parent!  as RenderBox;
+    RenderBox parent = renderObject.parent! as RenderBox;
     Rect parentBounds = parent.paintBounds;
     Offset topLeftGlobal = parent.localToGlobal(parentBounds.topLeft);
     Offset bottomRightGlobal = parent.localToGlobal(parentBounds.bottomRight);
-    parentBox = Rect.fromLTRB(topLeftGlobal.dx, topLeftGlobal.dy, bottomRightGlobal.dx, bottomRightGlobal.dy);
-    print(parentBox);
+    parentBox = Rect.fromLTRB(topLeftGlobal.dx, topLeftGlobal.dy,
+        bottomRightGlobal.dx, bottomRightGlobal.dy);
+  }
+  ///
+  void setItemSize(Size itemSize) {
+    setState(() {
+      this.itemSize = itemSize;
+    });
   }
   ///
   void onMove(DragTargetDetails details) {}
   ///
-  void onLeave(item) {
-
-  }
+  void onLeave(item) {}
   ///
   void onAcceptWithDetails(DragTargetDetails details) {
     widget.replaceItem(
@@ -211,12 +211,12 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   }
   ///
   void onDragUpdate(DragUpdateDetails details) {
-      final isContains =parentBox.contains(details.globalPosition);
-      if(isInParentBox != isContains){
-        setState(() {
-          isInParentBox = isContains;
-        });
-      }
+    final isContains = parentBox.contains(details.globalPosition);
+    if (isInParentBox != isContains) {
+      setState(() {
+        isInParentBox = isContains;
+      });
+    }
   }
   ///
   Widget dragTargetBuilder(context, candidateData, rejectedData) {
@@ -224,6 +224,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     if (candidateData.isNotEmpty && candidateData.first.runtimeType == T) {
       return getWidgetInDragTarget();
     }
+
     /// стандартное отображение
     return widgetFromBuilder;
   }
@@ -236,20 +237,19 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   }
   ///
   Widget getChildWhenDragging() {
-    return isInParentBox? Container(
-
-      color: Colors.greenAccent,
-      child: widgetFromBuilder,
-    ):Container(
-      height: itemSize.width/2,
-      color: Colors.white38,
-      child: widgetFromBuilder,
-    );
+    return isInParentBox
+        ? SizedBox(
+            height: itemSize.height,
+            width: itemSize.width,
+          )
+        : Container(
+            height: itemSize.width / 2,
+            color: Colors.white38,
+            child: widgetFromBuilder,
+          );
   }
   ///
   bool onWillAcceptWithDetails(DragTargetDetails details) {
-    print('onWillAcceptWithDetails ${details.offset}');
     return true;
   }
-
 }
