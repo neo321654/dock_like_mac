@@ -73,6 +73,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       ),
       padding: const EdgeInsets.all(4),
       child: Row(
+        key: UniqueKey(),
         mainAxisSize: MainAxisSize.min,
         children: _items
             .map((e) => DockItem(
@@ -141,8 +142,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     print('initState');
     ///
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      RenderBox itemRenderBox = context.findRenderObject()! as RenderBox;
-      setItemParameters(itemRenderBox);
+      setItemParameters(context:context);
     });
   }
 
@@ -152,11 +152,12 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     print('didChangeDependencies');
   }
 
-  @override
-  void didUpdateWidget(covariant DockItem<T> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    print('didUpdateWidget');
-  }
+  // @override
+  // void didUpdateWidget(covariant DockItem<T> oldWidget) {
+  //   super.didUpdateWidget(oldWidget);
+  //   print('didUpdateWidget');
+  //   setItemParameters(context:context);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -304,7 +305,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   }
 
   ///
-  void setItemParameters(RenderBox itemRenderBox) {
+  void setItemParameters({required BuildContext context}) {
+    RenderBox itemRenderBox = context.findRenderObject()! as RenderBox;
     setState(() {
       RenderBox parent = itemRenderBox.parent! as RenderBox;
       parentBox = getRectBox(parent);
@@ -321,13 +323,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     Offset bottomRightGlobal = renderBox.localToGlobal(box.bottomRight);
     return Rect.fromLTRB(topLeftGlobal.dx, topLeftGlobal.dy,
         bottomRightGlobal.dx, bottomRightGlobal.dy);
-  }
-
-  ///
-  void setItemData(Size itemSize) {
-    setState(() {
-      this.itemSize = itemSize;
-    });
   }
 
   ///
@@ -348,9 +343,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       overlayEntry?.remove();
       overlayEntry?.dispose();
       overlayEntry = null;
-      setState(() {
-
-      });
       print('remove overlay');
     }
 
