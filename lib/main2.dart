@@ -130,6 +130,9 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   Rect itemBox = Rect.zero;
 
+  ///
+  double tempHeight = 0;
+
   @override
   void initState() {
     super.initState();
@@ -170,6 +173,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   Offset dragAnchorStrategy(
       Draggable<Object> draggable, BuildContext context, Offset position) {
     final RenderBox renderObject = context.findRenderObject()! as RenderBox;
+
     /// возвращаю обычный [childDragAnchorStrategy]
     return renderObject.globalToLocal(position);
   }
@@ -180,6 +184,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       RenderBox parent = itemRenderBox.parent! as RenderBox;
       parentBox = getRectBox(parent);
       itemSize = itemRenderBox.size;
+      tempHeight = itemSize.height;
       itemBox = getRectBox(itemRenderBox);
     });
   }
@@ -266,12 +271,22 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   Widget getChildWhenDragging() {
     return isInParentBox
-        ? SizedBox(
-            height: itemSize.height,
-            width: itemSize.width,
+        ? TweenAnimationBuilder(
+            tween: Tween<double>(begin: tempHeight, end: itemSize.width),
+      onEnd: (){
+        tempHeight = itemSize.width;
+      },
+            duration: const Duration(milliseconds: 300),
+            builder: (context, width, child) {
+
+              return SizedBox(width: width);
+            },
           )
         : TweenAnimationBuilder(
             tween: Tween<double>(begin: itemSize.width, end: 0),
+            onEnd: (){
+              tempHeight = 0;
+            },
             duration: const Duration(milliseconds: 300),
             builder: (context, width, child) {
               return SizedBox(width: width);
