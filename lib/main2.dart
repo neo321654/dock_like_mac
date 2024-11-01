@@ -64,6 +64,9 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   /// [T] items being manipulated.
   late final List<T> _items = widget.items.toList();
 
+  ///
+  Offset offsetWillAccept = Offset.zero ;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -81,6 +84,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                   builder: widget.builder,
                   item: e,
                   replaceItem: replaceItem,
+                  offsetWillAccept:offsetWillAccept,
+                  setOffsetWillAccept:setOffsetWillAccept,
                 ))
             .toList(),
       ),
@@ -95,6 +100,13 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       _items.insert(index, itemToReplace);
     });
   }
+
+  ///
+  void setOffsetWillAccept(Offset offsetWillAccept ) {
+    setState(() {
+      this.offsetWillAccept = offsetWillAccept;
+    });
+  }
 }
 
 class DockItem<T extends Object> extends StatefulWidget {
@@ -102,14 +114,21 @@ class DockItem<T extends Object> extends StatefulWidget {
       {required this.builder,
       required this.item,
       required this.replaceItem,
-      super.key});
+      required this.offsetWillAccept,
+      required this.setOffsetWillAccept,
+      super.key, });
 
   final T item;
+
+  final Offset offsetWillAccept;
 
   final Widget Function(T) builder;
 
   /// Callback function invoked when an item is dropped.
   final Function(T itemToRemove, T item) replaceItem;
+
+  ///
+  final Function(Offset offset) setOffsetWillAccept;
 
   @override
   State<DockItem<T>> createState() => _DockItemState<T>();
@@ -200,17 +219,18 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   void onDraggableCanceled (velocity, offset) {
     isInParentBox = true;
     setTempHeight(itemSize.height);
+    context.owner
     showOverlayAnimation(
-        begin: offset, end: itemBox.topLeft, context: context);
+        begin: offset, end: itemBox.topLeft, );
   }
 
   ///
   void onDragCompleted() {
-
+    //todo нужно узнать точку куда приземляться
     isInParentBox = true;
     setTempHeight(itemSize.height);
     showOverlayAnimation(
-        begin: onDragEndOffset, end: itemBox.topLeft, context: context);
+        begin: onDragEndOffset, end: widget.offsetWillAccept,);
   }
 
   ///
@@ -224,7 +244,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     );
   }
 
-  ///
+  ///b
   void onDragUpdate(DragUpdateDetails details) {
     final isContains = parentBox.contains(details.localPosition);
     if (isInParentBox != isContains) {
@@ -278,7 +298,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
         ? TweenAnimationBuilder(
             tween: Tween<double>(begin: tempHeight, end: itemSize.width),
             onEnd: () {
-              setTempHeight(itemSize.width);
+               setTempHeight(itemSize.width);
             },
             duration: const Duration(milliseconds: 300),
             builder: (context, width, child) {
@@ -301,6 +321,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   bool onWillAcceptWithDetails(DragTargetDetails details) {
     //todo срабатывает когда начинаешь тянуть , нужно избежать первый раз
     print('onWillAcceptWithDetails ${details.offset}');
+    widget.setOffsetWillAccept(itemBox.topLeft);
     return true;
   }
 
@@ -327,16 +348,15 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   void setTempHeight(double tempHeight) {
-    setState(() {
+
       this.tempHeight = tempHeight;
-    });
+
   }
 
   ///
   void showOverlayAnimation(
       {required Offset begin,
-      required Offset end,
-      required BuildContext context}) {
+      required Offset end,}) {
     OverlayEntry? overlayEntry;
 
     void removeOverlayEntry() {
