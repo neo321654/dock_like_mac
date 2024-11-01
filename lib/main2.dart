@@ -128,11 +128,13 @@ class _DockItemState<T> extends State<DockItem<T>> {
     return Draggable(
         data: T,
         feedback: widgetFromBuilder,
+        onDragUpdate: (details) {},
+        childWhenDragging: showChildWhenDragging(child: widgetFromBuilder),
         child: DragTarget(
           builder: (context, candidateData, rejectedData) {
             /// отображение когда входит нужный айтем
             if (candidateData.isNotEmpty && candidateData.first == T) {
-              return showWidgetInDragTarget(child: widgetFromBuilder);
+              return showItemInDragTarget(child: widgetFromBuilder);
             }
 
             /// стандартное отображение
@@ -141,9 +143,16 @@ class _DockItemState<T> extends State<DockItem<T>> {
         ));
   }
 
-  Widget showWidgetInDragTarget({required Widget child}) {
-    return Padding(
-      padding: const EdgeInsets.all(2.0),
+  Widget showItemInDragTarget({required Widget child}) {
+    return Container(
+      color:Colors.blueAccent,
+      child: child,
+    );
+  }
+
+  Widget showChildWhenDragging({required Widget child}) {
+    return Container(
+      color:Colors.greenAccent,
       child: child,
     );
   }
