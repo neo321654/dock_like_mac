@@ -97,7 +97,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 }
 
 class DockItem<T extends Object> extends StatefulWidget {
-  const DockItem(
+   const DockItem(
       {required this.builder,
       required this.item,
       required this.replaceItem,
@@ -110,12 +110,18 @@ class DockItem<T extends Object> extends StatefulWidget {
   /// Callback function invoked when an item is dropped.
   final Function(T itemToRemove, T item) replaceItem;
 
+
+
   @override
   State<DockItem<T>> createState() => _DockItemState<T>();
 }
 
 class _DockItemState<T extends Object> extends State<DockItem<T>> {
+
+  ///
   late Widget widgetFromBuilder;
+  ///
+  late final Rect parentBox;
 
   @override
   void initState() {
@@ -160,8 +166,9 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       Offset topLeftGlobal = parent.localToGlobal(parentBounds.topLeft);
       Offset bottomRightGlobal = parent.localToGlobal(parentBounds.bottomRight);
 
+      parentBox = Rect.fromLTRB(topLeftGlobal.dx, topLeftGlobal.dy, bottomRightGlobal.dx, bottomRightGlobal.dy);
 
-      print(renderObject.parent?.paintBounds);
+      print(parentBox);
       renderObject.size;
       // Offset? offSet = getParentOffset(renderObject);
       //
