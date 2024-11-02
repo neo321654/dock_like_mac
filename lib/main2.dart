@@ -73,7 +73,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       ),
       padding: const EdgeInsets.all(4),
       child: Row(
-        key: UniqueKey(),
+        key: ValueKey(_items.join()),
         mainAxisSize: MainAxisSize.min,
         children: _items
             .map((e) => DockItem(
