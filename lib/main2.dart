@@ -93,7 +93,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       begin: Offset(222, 33),
       end: Offset(212, 133),
       context: context,
-      child: widget.builder(item),
+      // child: Icon(itemToReplace as IconData,key: UniqueKey(),),
+      child: widget.builder(itemToReplace),
     );
 
     setState(() {
@@ -110,6 +111,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     required BuildContext context,
     Widget? child,
   }) {
+
+    print(child);
     OverlayEntry? overlayEntry;
 
     void removeOverlayEntry() {
@@ -121,9 +124,11 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     overlayEntry = OverlayEntry(
       builder: (BuildContext context) {
         return Stack(
+
           fit: StackFit.expand,
           children: [
             Positioned(
+
               top: end.dy,
               left: end.dx,
               child: Container(
@@ -133,18 +138,21 @@ class _DockState<T extends Object> extends State<Dock<T>> {
               ),
             ),
             TweenAnimationBuilder(
+
               tween: Tween<Offset>(
                 begin: begin,
                 end: end,
               ),
               duration: const Duration(milliseconds: 300),
               onEnd: removeOverlayEntry,
-              child: child ?? widget.builder(_items.first),
+              child: child ?? Text('dfdf'),
               builder: (context, offset, child) {
                 return Positioned(
+                  key: UniqueKey(),
+
                   top: offset.dy,
                   left: offset.dx,
-                  child: widget.builder(_items.first),
+                  child: child!,
                 );
               },
             ),
