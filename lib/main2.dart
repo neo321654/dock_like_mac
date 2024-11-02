@@ -212,6 +212,9 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   bool isDragging = false;
 
+  ///
+  bool isInAnotherItem = false;
+
   @override
   void initState() {
     super.initState();
@@ -303,12 +306,24 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   void onDragUpdate(DragUpdateDetails details) {
-    final isContains = parentBox.contains(details.localPosition);
-    if (isInParentBox != isContains) {
+    final isContainsParentBox = parentBox.contains(details.localPosition);
+    if (isInParentBox != isContainsParentBox) {
       setState(() {
-        isInParentBox = isContains;
+        isInParentBox = isContainsParentBox;
       });
     }
+
+    if(isInParentBox){
+      final isContainsItemBox = !itemBox.contains(details.localPosition);
+      // if (isInAnotherItem != isContainsItemBox) {
+      //   setState(() {
+      //     isInAnotherItem = isContainsItemBox;
+      //   });
+      // }
+      print('isInAnotherItem $isContainsItemBox');
+    }
+
+
   }
 
   ///
