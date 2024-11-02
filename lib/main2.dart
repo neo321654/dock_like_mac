@@ -118,6 +118,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     OverlayEntry? overlayEntry;
 
     void removeOverlayEntry() {
+      //todo не всегда удаляется если анимация не отыграла до конца а уже что-то поменялось
       overlayEntry?.remove();
       overlayEntry?.dispose();
       overlayEntry = null;
@@ -206,7 +207,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   double tempHeight = 0;
 
   ///
-  Offset onDragEndOffset = Offset.zero;
+  Offset onWillAcceptOffset = Offset.zero;
 
   @override
   void initState() {
@@ -236,13 +237,9 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       dragAnchorStrategy: dragAnchorStrategy,
       child: DragTarget(
         builder: dragTargetBuilder,
-
-        ///bug on web
-        // onWillAcceptWithDetails: onWillAcceptWithDetails,
+        onWillAcceptWithDetails: onWillAcceptWithDetails,
         onAcceptWithDetails: onAcceptWithDetails,
-
-        ///bug on web
-        // onMove: onMove,
+        onMove: onMove,
         onLeave: onLeave,
       ),
     );
@@ -263,9 +260,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   }
 
   ///
-  void onDragEnd(DraggableDetails details) {
-    onDragEndOffset = details.offset;
-  }
+  void onDragEnd(DraggableDetails details) {}
 
   ///
   void onDraggableCanceled(velocity, offset) {
@@ -376,7 +371,20 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   bool onWillAcceptWithDetails(DragTargetDetails details) {
     //todo срабатывает когда начинаешь тянуть , нужно избежать первый раз
-    print('onWillAcceptWithDetails ${details.offset}');
+    onWillAcceptOffset = details.offset;
+
+    // isRightPadding = (ofToGlobal - offMove).dx.isNegative;
+
+    print(
+        'onWillAcceptWithDetails left ${onWillAcceptOffset.dx - itemBox.centerLeft.dx}');
+    print('onWillAcceptWithDetails  left ${getIsGoFromLeft(
+      currentOffset: onWillAcceptOffset,
+      itemBoxCenterLeft: itemBox.centerLeft,
+    )}');
+
+    // print('onWillAcceptWithDetails right ${onWillAcceptOffset - itemBox.centerRight}');
+    // print('onWillAcceptWithDetails plus ${(onWillAcceptOffset - itemBox.centerRight)>(onWillAcceptOffset - itemBox.centerLeft)}');
+
     return true;
   }
 
@@ -406,5 +414,13 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     setState(() {
       this.tempHeight = tempHeight;
     });
+  }
+
+  ///
+  bool getIsGoFromLeft({
+    required Offset currentOffset,
+    required Offset itemBoxCenterLeft,
+  }) {
+    return (currentOffset.dx - itemBoxCenterLeft.dx).isNegative;
   }
 }
