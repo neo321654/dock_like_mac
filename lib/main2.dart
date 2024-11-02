@@ -315,12 +315,12 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
     if(isInParentBox){
       final isContainsItemBox = !itemBox.contains(details.localPosition);
-      // if (isInAnotherItem != isContainsItemBox) {
-      //   setState(() {
-      //     isInAnotherItem = isContainsItemBox;
-      //   });
-      // }
-      print('isInAnotherItem $isContainsItemBox');
+      if (isInAnotherItem != isContainsItemBox) {
+        setState(() {
+          isInAnotherItem = isContainsItemBox;
+        });
+      }
+      print('isInAnotherItem $isInAnotherItem');
     }
 
 
