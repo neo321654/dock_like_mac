@@ -89,11 +89,72 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
   ///
   void replaceItem(T itemToReplace, T item) {
+    showOverlayAnimation(
+      begin: Offset(222, 33),
+      end: Offset(212, 133),
+      context: context,
+      child: widget.builder(item),
+    );
+
     setState(() {
       int index = _items.indexOf(item);
       _items.remove(itemToReplace);
       _items.insert(index, itemToReplace);
     });
+  }
+
+  ///
+  void showOverlayAnimation({
+    required Offset begin,
+    required Offset end,
+    required BuildContext context,
+    Widget? child,
+  }) {
+    OverlayEntry? overlayEntry;
+
+    void removeOverlayEntry() {
+      overlayEntry?.remove();
+      overlayEntry?.dispose();
+      overlayEntry = null;
+    }
+
+    overlayEntry = OverlayEntry(
+      builder: (BuildContext context) {
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned(
+              top: end.dy,
+              left: end.dx,
+              child: Container(
+                height: 64,
+                width: 64,
+                color: const Color(0xffDFD9DF),
+              ),
+            ),
+            TweenAnimationBuilder(
+              tween: Tween<Offset>(
+                begin: begin,
+                end: end,
+              ),
+              duration: const Duration(milliseconds: 300),
+              onEnd: removeOverlayEntry,
+              child: child ?? widget.builder(_items.first),
+              builder: (context, offset, child) {
+                return Positioned(
+                  top: offset.dy,
+                  left: offset.dx,
+                  child: widget.builder(_items.first),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    Overlay.of(context)
+        .insert(overlayEntry!); // Insert overlay entry into the overlay stack
   }
 }
 
@@ -160,7 +221,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       childWhenDragging: getChildWhenDragging(),
       onDragEnd: onDragEnd,
       onDragStarted: () {},
-      onDraggableCanceled:onDraggableCanceled,
+      onDraggableCanceled: onDraggableCanceled,
       onDragCompleted: onDragCompleted,
       dragAnchorStrategy: dragAnchorStrategy,
       child: DragTarget(
@@ -197,20 +258,18 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   }
 
   ///
-  void onDraggableCanceled (velocity, offset) {
+  void onDraggableCanceled(velocity, offset) {
     isInParentBox = true;
     setTempHeight(itemSize.height);
-    showOverlayAnimation(
-        begin: offset, end: itemBox.topLeft, context: context);
+    showOverlayAnimation(begin: offset, end: itemBox.topLeft, context: context);
   }
 
   ///
   void onDragCompleted() {
-
     isInParentBox = true;
     setTempHeight(itemSize.height);
-    showOverlayAnimation(
-        begin: onDragEndOffset, end: itemBox.topLeft, context: context);
+    // showOverlayAnimation(
+    //     begin: onDragEndOffset, end: itemBox.topLeft, context: context);
   }
 
   ///
