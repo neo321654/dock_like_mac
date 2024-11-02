@@ -89,7 +89,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
   ///
   void replaceItem({
-   required T itemToReplace,
+    required T itemToReplace,
     required T item,
     required Offset startOffset,
     required Offset endOffset,
@@ -176,10 +176,10 @@ class DockItem<T extends Object> extends StatefulWidget {
 
   /// Callback function invoked when an item is dropped.
   final Function({
-  required T itemToReplace,
-  required T item,
-  required Offset startOffset,
-  required Offset endOffset,
+    required T itemToReplace,
+    required T item,
+    required Offset startOffset,
+    required Offset endOffset,
   }) replaceItem;
 
   @override
@@ -271,15 +271,20 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   void onDraggableCanceled(velocity, offset) {
     isInParentBox = true;
     setTempHeight(itemSize.height);
-    showOverlayAnimation(begin: offset, end: itemBox.topLeft, context: context);
+
+    /// вызываю чтобы показать анимацию возврата элемента в изначальное положение
+    widget.replaceItem(
+      itemToReplace: widget.item,
+      item: widget.item,
+      startOffset: offset,
+      endOffset: itemBox.topLeft,
+    );
   }
 
   ///
   void onDragCompleted() {
     isInParentBox = true;
     setTempHeight(itemSize.height);
-    // showOverlayAnimation(
-    //     begin: onDragEndOffset, end: itemBox.topLeft, context: context);
   }
 
   ///
@@ -289,7 +294,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   void onAcceptWithDetails(DragTargetDetails details) {
     widget.replaceItem(
       itemToReplace: details.data,
-      item:  widget.item,
+      item: widget.item,
       startOffset: details.offset,
       endOffset: itemBox.topLeft,
     );
@@ -401,57 +406,5 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     setState(() {
       this.tempHeight = tempHeight;
     });
-  }
-
-  ///
-  void showOverlayAnimation(
-      {required Offset begin,
-      required Offset end,
-      required BuildContext context}) {
-    OverlayEntry? overlayEntry;
-
-    void removeOverlayEntry() {
-      overlayEntry?.remove();
-      overlayEntry?.dispose();
-      overlayEntry = null;
-    }
-
-    overlayEntry = OverlayEntry(
-      builder: (BuildContext context) {
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            Positioned(
-              top: end.dy,
-              left: end.dx,
-              child: Container(
-                height: itemSize.height,
-                width: itemSize.width,
-                color: const Color(0xffDFD9DF),
-              ),
-            ),
-            TweenAnimationBuilder(
-              tween: Tween<Offset>(
-                begin: begin,
-                end: end,
-              ),
-              duration: const Duration(milliseconds: 300),
-              onEnd: removeOverlayEntry,
-              child: widgetFromBuilder,
-              builder: (context, offset, child) {
-                return Positioned(
-                  top: offset.dy,
-                  left: offset.dx,
-                  child: widgetFromBuilder,
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
-
-    Overlay.of(context)
-        .insert(overlayEntry!); // Insert overlay entry into the overlay stack
   }
 }
