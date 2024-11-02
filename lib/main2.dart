@@ -367,7 +367,18 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   Widget getChildWhenDragging() {
 
-    if(isInAnotherItem) return SizedBox.shrink();
+    if(isInAnotherItem) {
+      return TweenAnimationBuilder(
+      tween: Tween<double>(begin:itemSize.width , end:0 ),
+      onEnd: () {
+        setTempHeight(0);
+      },
+      duration: const Duration(milliseconds: 300),
+      builder: (context, width, child) {
+        return SizedBox(width: width);
+      },
+    );
+    }
 
     return isInParentBox
         ? TweenAnimationBuilder(
