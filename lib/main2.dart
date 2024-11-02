@@ -344,7 +344,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       duration: const Duration(milliseconds: 300),
       builder: (context, width, child) {
         return Container(
-            color: Colors.red,
+            // color: Colors.red,
             child: Row(
               children: [
                 Padding(
@@ -366,6 +366,9 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   Widget getChildWhenDragging() {
+
+    if(isInAnotherItem) return SizedBox.shrink();
+
     return isInParentBox
         ? TweenAnimationBuilder(
             tween: Tween<double>(begin: tempHeight, end: itemSize.width),
