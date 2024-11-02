@@ -207,7 +207,10 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   double tempHeight = 0;
 
   ///
-  Offset onWillAcceptOffset = Offset.zero;
+  bool? isFromLeft;
+
+  ///
+  bool isDragging = false;
 
   @override
   void initState() {
@@ -231,7 +234,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       onDragUpdate: onDragUpdate,
       childWhenDragging: getChildWhenDragging(),
       onDragEnd: onDragEnd,
-      onDragStarted: () {},
+      onDragStarted: onDragStarted,
       onDraggableCanceled: onDraggableCanceled,
       onDragCompleted: onDragCompleted,
       dragAnchorStrategy: dragAnchorStrategy,
@@ -255,12 +258,18 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   }
 
   ///
-  void onMove(DragTargetDetails details) {
-    // print('onMove ${details.offset}');
+  void onDragEnd(DraggableDetails details) {
+    setState(() {
+      isDragging = false;
+    });
   }
 
   ///
-  void onDragEnd(DraggableDetails details) {}
+  void onDragStarted() {
+    setState(() {
+      isDragging = true;
+    });
+  }
 
   ///
   void onDraggableCanceled(velocity, offset) {
@@ -281,9 +290,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     isInParentBox = true;
     setTempHeight(itemSize.height);
   }
-
-  ///
-  void onLeave(item) {}
 
   ///
   void onAcceptWithDetails(DragTargetDetails details) {
@@ -328,7 +334,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
               children: [
                 Padding(
                   // padding: EdgeInsets.only(left: width),
-                  padding: EdgeInsets.only(left: 0),
+                  padding: EdgeInsets.only(right: isFromLeft!? width: 0,left: !isFromLeft!? width: 0,),
                   child: child,
                 ),
               ],
@@ -369,21 +375,26 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   }
 
   ///
+  void onLeave(item) {
+    // print('onLeave');
+  }
+
+  ///
+  void onMove(DragTargetDetails details) {
+     // print('onMove ${details.offset}');
+  }
+
+  ///
   bool onWillAcceptWithDetails(DragTargetDetails details) {
     //todo срабатывает когда начинаешь тянуть , нужно избежать первый раз
-    onWillAcceptOffset = details.offset;
 
-    // isRightPadding = (ofToGlobal - offMove).dx.isNegative;
-
-    print(
-        'onWillAcceptWithDetails left ${onWillAcceptOffset.dx - itemBox.centerLeft.dx}');
-    print('onWillAcceptWithDetails  left ${getIsGoFromLeft(
-      currentOffset: onWillAcceptOffset,
-      itemBoxCenterLeft: itemBox.centerLeft,
-    )}');
-
-    // print('onWillAcceptWithDetails right ${onWillAcceptOffset - itemBox.centerRight}');
-    // print('onWillAcceptWithDetails plus ${(onWillAcceptOffset - itemBox.centerRight)>(onWillAcceptOffset - itemBox.centerLeft)}');
+    if (!isDragging) {
+      isFromLeft = getIsGoFromLeft(
+        currentOffset: details.offset,
+        itemBoxCenterLeft: itemBox.centerLeft,
+      );
+      print('isFromLeft $isFromLeft');
+    }
 
     return true;
   }
