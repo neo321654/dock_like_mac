@@ -88,12 +88,16 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   }
 
   ///
-  void replaceItem(T itemToReplace, T item) {
+  void replaceItem({
+   required T itemToReplace,
+    required T item,
+    required Offset startOffset,
+    required Offset endOffset,
+  }) {
     showOverlayAnimation(
-      begin: Offset(222, 33),
-      end: Offset(212, 133),
+      begin: startOffset,
+      end: endOffset,
       context: context,
-      // child: Icon(itemToReplace as IconData,key: UniqueKey(),),
       child: widget.builder(itemToReplace),
     );
 
@@ -111,8 +115,6 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     required BuildContext context,
     Widget? child,
   }) {
-
-    print(child);
     OverlayEntry? overlayEntry;
 
     void removeOverlayEntry() {
@@ -124,11 +126,9 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     overlayEntry = OverlayEntry(
       builder: (BuildContext context) {
         return Stack(
-
           fit: StackFit.expand,
           children: [
             Positioned(
-
               top: end.dy,
               left: end.dx,
               child: Container(
@@ -138,18 +138,15 @@ class _DockState<T extends Object> extends State<Dock<T>> {
               ),
             ),
             TweenAnimationBuilder(
-
               tween: Tween<Offset>(
                 begin: begin,
                 end: end,
               ),
               duration: const Duration(milliseconds: 300),
               onEnd: removeOverlayEntry,
-              child: child ?? Text('dfdf'),
+              child: child ?? const SizedBox.shrink(),
               builder: (context, offset, child) {
                 return Positioned(
-                  key: UniqueKey(),
-
                   top: offset.dy,
                   left: offset.dx,
                   child: child!,
@@ -178,7 +175,12 @@ class DockItem<T extends Object> extends StatefulWidget {
   final Widget Function(T) builder;
 
   /// Callback function invoked when an item is dropped.
-  final Function(T itemToRemove, T item) replaceItem;
+  final Function({
+  required T itemToReplace,
+  required T item,
+  required Offset startOffset,
+  required Offset endOffset,
+  }) replaceItem;
 
   @override
   State<DockItem<T>> createState() => _DockItemState<T>();
@@ -286,8 +288,10 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   void onAcceptWithDetails(DragTargetDetails details) {
     widget.replaceItem(
-      details.data,
-      widget.item,
+      itemToReplace: details.data,
+      item:  widget.item,
+      startOffset: details.offset,
+      endOffset: itemBox.topLeft,
     );
   }
 
