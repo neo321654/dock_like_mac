@@ -376,7 +376,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   Widget getWidgetInDragTargetOnLeave() {
 
     return TweenAnimationBuilder(
-      tween: Tween<double>(begin: 0, end: itemSize.width),
+      tween: Tween<double>(begin: itemSize.width, end: 0),
       duration: const Duration(milliseconds: 300),
       builder: (context, width, child) {
         return Container(
