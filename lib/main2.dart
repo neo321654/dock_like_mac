@@ -215,12 +215,16 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   bool isInAnotherItem = false;
 
+  ///
+  bool isOnLeave = false;
+
+
+
   @override
   void initState() {
     super.initState();
     widgetFromBuilder = widget.builder(widget.item);
 
-    print('initState');
 
     ///
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -333,18 +337,50 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       return getWidgetInDragTarget();
     }
 
+    if(isOnLeave){
+      return getWidgetInDragTargetOnLeave();
+    }
+
     /// стандартное отображение
     return widgetFromBuilder;
   }
 
-  ///h
+  ///
   Widget getWidgetInDragTarget() {
+
     return TweenAnimationBuilder(
       tween: Tween<double>(begin: 0, end: itemSize.width),
       duration: const Duration(milliseconds: 300),
       builder: (context, width, child) {
         return Container(
-            // color: Colors.red,
+             color: Colors.red,
+            child: Row(
+              children: [
+                Padding(
+                  // padding: EdgeInsets.only(left: width),
+                  padding: EdgeInsets.only(right: isFromLeft!? width: 0,left: !isFromLeft!? width: 0,),
+                  child: child,
+                ),
+              ],
+            ));
+      },
+      child: widgetFromBuilder,
+    );
+
+    // return Container(
+    //   color: Colors.blueAccent,
+    //   child: widgetFromBuilder,
+    // );
+  }
+  ///
+  Widget getWidgetInDragTargetOnLeave() {
+
+    return TweenAnimationBuilder(
+      tween: Tween<double>(begin: 0, end: itemSize.width),
+      duration: const Duration(milliseconds: 300),
+      builder: (context, width, child) {
+        return Container(
+             color: Colors.blueAccent,
             child: Row(
               children: [
                 Padding(
@@ -366,12 +402,13 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   Widget getChildWhenDragging() {
+    print('tempHeight $tempHeight');
 
     if(isInAnotherItem) {
       return TweenAnimationBuilder(
-      tween: Tween<double>(begin:itemSize.width , end:0 ),
+      tween: Tween<double>(begin:tempHeight , end:0 ),
       onEnd: () {
-        setTempHeight(0);
+        setTempHeight(itemSize.width);
       },
       duration: const Duration(milliseconds: 300),
       builder: (context, width, child) {
@@ -405,12 +442,14 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   void onLeave(item) {
-    // print('onLeave');
+    setState(() {
+      isOnLeave = true;
+
+    });
   }
 
   ///
   void onMove(DragTargetDetails details) {
-     // print('onMove ${details.offset}');
   }
 
   ///
@@ -422,7 +461,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
         currentOffset: details.offset,
         itemBoxCenterLeft: itemBox.centerLeft,
       );
-      print('isFromLeft $isFromLeft');
+      // print('isFromLeft $isFromLeft');
     }
 
     return true;
