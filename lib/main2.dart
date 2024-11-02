@@ -238,11 +238,11 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
         builder: dragTargetBuilder,
 
         ///bug on web
-        onWillAcceptWithDetails: onWillAcceptWithDetails,
+        // onWillAcceptWithDetails: onWillAcceptWithDetails,
         onAcceptWithDetails: onAcceptWithDetails,
 
         ///bug on web
-        onMove: onMove,
+        // onMove: onMove,
         onLeave: onLeave,
       ),
     );
