@@ -208,8 +208,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   Rect itemBox = Rect.zero;
 
-  String test = '';
-
   ///
   double tempHeight = 0;
 
@@ -227,8 +225,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   @override
   void initState() {
-    print(test);
-
     print('${widget.item} initState');
     super.initState();
     widgetFromBuilder = widget.builder(widget.item);
@@ -279,8 +275,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   @override
   Widget build(BuildContext context) {
-    // print('${widget.item} build');
-    print('${widget.item} $test');
+    print('${widget.item} build');
     return Draggable<T>(
       data: widget.item,
       feedback: widgetFromBuilder,
@@ -313,16 +308,12 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   void onDragEnd(DraggableDetails details) {
-    setState(() {
       isDragging = false;
-    });
   }
 
   ///
   void onDragStarted() {
-    setState(() {
       isDragging = true;
-    });
   }
 
   ///
