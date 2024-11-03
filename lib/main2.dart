@@ -195,6 +195,7 @@ class DockItem<T extends Object> extends StatefulWidget {
 class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   late Widget widgetFromBuilder = widget.builder(widget.item);
+
   ///
   late T item = widget.item;
 
@@ -202,33 +203,35 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   late Rect parentBox;
 
   ///
-  bool isInParentBox = true;
+  late bool isInParentBox;
 
   ///
-  Size itemSize = Size.zero;
+  late Size itemSize;
 
   ///
-  Rect itemBox = Rect.zero;
+  late Rect itemBox;
 
   ///
-  double tempHeight = 0;
+  late double tempHeight;
 
   ///
-  bool? isFromLeft;
+  late bool? isFromLeft;
 
   ///
-  bool isDragging = false;
+  late bool isDragging;
 
   ///
-  bool isInAnotherItem = false;
+  late bool isInAnotherItem;
 
   ///
-  bool isOnLeave = false;
+  late bool isOnLeave;
 
   @override
   void initState() {
     super.initState();
     print('$item initState');
+    setDefaultValues();
+
     ///
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setItemParameters(context: context);
@@ -307,12 +310,14 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   void onDragEnd(DraggableDetails details) {
-      isDragging = false;
+    isDragging = false;
   }
 
   ///
   void onDragStarted() {
+    setState(() {
       isDragging = true;
+    });
   }
 
   ///
@@ -390,17 +395,17 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
         return Container(
             // color: Colors.red,
             child: Row(
-              children: [
-                Padding(
-                  // padding: EdgeInsets.only(left: width),
-                  padding: EdgeInsets.only(
-                    right: isFromLeft! ? width : 0,
-                    left: !isFromLeft! ? width : 0,
-                  ),
-                  child: child,
-                ),
-              ],
-            ));
+          children: [
+            Padding(
+              // padding: EdgeInsets.only(left: width),
+              padding: EdgeInsets.only(
+                right: isFromLeft! ? width : 0,
+                left: !isFromLeft! ? width : 0,
+              ),
+              child: child,
+            ),
+          ],
+        ));
       },
       child: widgetFromBuilder,
     );
@@ -420,17 +425,17 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
         return Container(
             // color: Colors.blueAccent,
             child: Row(
-              children: [
-                Padding(
-                  // padding: EdgeInsets.only(left: width),
-                  padding: EdgeInsets.only(
-                    right: isFromLeft! ? width : 0,
-                    left: !isFromLeft! ? width : 0,
-                  ),
-                  child: child,
-                ),
-              ],
-            ));
+          children: [
+            Padding(
+              // padding: EdgeInsets.only(left: width),
+              padding: EdgeInsets.only(
+                right: isFromLeft! ? width : 0,
+                left: !isFromLeft! ? width : 0,
+              ),
+              child: child,
+            ),
+          ],
+        ));
       },
       child: widgetFromBuilder,
     );
@@ -443,7 +448,9 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   Widget getChildWhenDragging() {
+    print('getChildWhenDragging');
     if (isInAnotherItem) {
+      print('isInAnotherItem');
       return TweenAnimationBuilder(
         tween: Tween<double>(begin: tempHeight, end: 0),
         onEnd: () {
@@ -451,38 +458,56 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
         },
         duration: const Duration(milliseconds: 300),
         builder: (context, width, child) {
-          return SizedBox(width: width);
+          return Container(
+            color: Colors.greenAccent,
+            width: width,
+            height: width,
+          );
         },
       );
     }
 
-    return isInParentBox
-        ? TweenAnimationBuilder(
-            tween: Tween<double>(begin: tempHeight, end: itemSize.width),
-            onEnd: () {
-              setTempHeight(itemSize.width);
-            },
-            duration: const Duration(milliseconds: 300),
-            builder: (context, width, child) {
-              return SizedBox(width: width);
-            },
-          )
-        : TweenAnimationBuilder(
-            tween: Tween<double>(begin: itemSize.width, end: 0),
-            onEnd: () {
-              setTempHeight(0);
-            },
-            duration: const Duration(milliseconds: 300),
-            builder: (context, width, child) {
-              return SizedBox(width: width);
-            },
+    if (isInParentBox) {
+      print('isInParentBox');
+
+      return TweenAnimationBuilder(
+        tween: Tween<double>(begin: tempHeight, end: itemSize.width),
+        onEnd: () {
+          setTempHeight(itemSize.width);
+        },
+        duration: const Duration(milliseconds: 300),
+        builder: (context, width, child) {
+          return Container(
+            color: Colors.indigo,
+            width: width,
+            height: width,
           );
+        },
+      );
+    } else {
+      print('!!!!isInParentBox');
+
+      return TweenAnimationBuilder(
+        tween: Tween<double>(begin: itemSize.width, end: itemSize.width),
+        // tween: Tween<double>(begin: itemSize.width, end: 0),
+        onEnd: () {
+          setTempHeight(0);
+        },
+        duration: const Duration(milliseconds: 300),
+        builder: (context, width, child) {
+          return Container(
+            color: Colors.amberAccent,
+            width: width,
+            height: width,
+          );
+        },
+      );
+    }
   }
 
   ///
   void onLeave(item) {
-      isOnLeave = true;
-
+    isOnLeave = true;
   }
 
   ///
@@ -524,7 +549,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   void setTempHeight(double tempHeight) {
-      this.tempHeight = tempHeight;
+    this.tempHeight = tempHeight;
   }
 
   ///
@@ -533,5 +558,32 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     required Offset itemBoxCenterLeft,
   }) {
     return (currentOffset.dx - itemBoxCenterLeft.dx).isNegative;
+  }
+
+  ///
+  void setDefaultValues() {
+    ///
+    isInParentBox = true;
+
+    ///
+    itemSize = Size.zero;
+
+    ///
+    itemBox = Rect.zero;
+
+    ///
+    tempHeight = 0;
+
+    ///
+    isDragging = false;
+
+    ///
+    isInAnotherItem = false;
+
+    ///
+    isOnLeave = false;
+
+    ///
+    isFromLeft = null;
   }
 }
