@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Entrypoint of the application.
@@ -164,6 +165,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   }
 }
 
+/// [Widget] building the [DockItem] contains [item] and [builder].
 class DockItem<T extends Object> extends StatefulWidget {
   const DockItem(
       {required this.builder,
@@ -171,8 +173,10 @@ class DockItem<T extends Object> extends StatefulWidget {
       required this.replaceItem,
       super.key});
 
+  ///
   final T item;
 
+  ///
   final Widget Function(T) builder;
 
   /// Callback function invoked when an item is dropped.
@@ -187,6 +191,7 @@ class DockItem<T extends Object> extends StatefulWidget {
   State<DockItem<T>> createState() => _DockItemState<T>();
 }
 
+///
 class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   late Widget widgetFromBuilder;
@@ -218,13 +223,11 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   bool isOnLeave = false;
 
-
-
   @override
   void initState() {
+    print('initState');
     super.initState();
     widgetFromBuilder = widget.builder(widget.item);
-
 
     ///
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -233,7 +236,52 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   }
 
   @override
+  void didChangeDependencies() {
+    print('didChangeDependencies');
+
+    super.didChangeDependencies();
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+    print('deactivate');
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    print('dispose');
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+    print('reassemble');
+  }
+
+  @override
+  void activate() {
+    super.activate();
+
+    print('activate');
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    print('debugFillProperties');
+  }
+
+  @override
+  void didUpdateWidget(covariant DockItem<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    print('didUpdateWidget');
+  }
+
+  @override
   Widget build(BuildContext context) {
+    print('${ DateTime.now()} build');
     return Draggable<T>(
       data: widget.item,
       feedback: widgetFromBuilder,
@@ -317,7 +365,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       });
     }
 
-    if(isInParentBox){
+    if (isInParentBox) {
       final isContainsItemBox = !itemBox.contains(details.localPosition);
       if (isInAnotherItem != isContainsItemBox) {
         setState(() {
@@ -326,8 +374,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       }
       print('isInAnotherItem $isInAnotherItem');
     }
-
-
   }
 
   ///
@@ -337,7 +383,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       return getWidgetInDragTarget();
     }
 
-    if(isOnLeave){
+    if (isOnLeave) {
       return getWidgetInDragTargetOnLeave();
     }
 
@@ -347,18 +393,20 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   Widget getWidgetInDragTarget() {
-
     return TweenAnimationBuilder(
       tween: Tween<double>(begin: 0, end: itemSize.width),
       duration: const Duration(milliseconds: 300),
       builder: (context, width, child) {
         return Container(
-             color: Colors.red,
+            color: Colors.red,
             child: Row(
               children: [
                 Padding(
                   // padding: EdgeInsets.only(left: width),
-                  padding: EdgeInsets.only(right: isFromLeft!? width: 0,left: !isFromLeft!? width: 0,),
+                  padding: EdgeInsets.only(
+                    right: isFromLeft! ? width : 0,
+                    left: !isFromLeft! ? width : 0,
+                  ),
                   child: child,
                 ),
               ],
@@ -372,20 +420,23 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     //   child: widgetFromBuilder,
     // );
   }
+
   ///
   Widget getWidgetInDragTargetOnLeave() {
-
     return TweenAnimationBuilder(
       tween: Tween<double>(begin: itemSize.width, end: 0),
       duration: const Duration(milliseconds: 300),
       builder: (context, width, child) {
         return Container(
-             color: Colors.blueAccent,
+            color: Colors.blueAccent,
             child: Row(
               children: [
                 Padding(
                   // padding: EdgeInsets.only(left: width),
-                  padding: EdgeInsets.only(right: isFromLeft!? width: 0,left: !isFromLeft!? width: 0,),
+                  padding: EdgeInsets.only(
+                    right: isFromLeft! ? width : 0,
+                    left: !isFromLeft! ? width : 0,
+                  ),
                   child: child,
                 ),
               ],
@@ -402,19 +453,17 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   Widget getChildWhenDragging() {
-    print('tempHeight $tempHeight');
-
-    if(isInAnotherItem) {
+    if (isInAnotherItem) {
       return TweenAnimationBuilder(
-      tween: Tween<double>(begin:tempHeight , end:0 ),
-      onEnd: () {
-        setTempHeight(itemSize.width);
-      },
-      duration: const Duration(milliseconds: 300),
-      builder: (context, width, child) {
-        return SizedBox(width: width);
-      },
-    );
+        tween: Tween<double>(begin: tempHeight, end: 0),
+        onEnd: () {
+          setTempHeight(itemSize.width);
+        },
+        duration: const Duration(milliseconds: 300),
+        builder: (context, width, child) {
+          return SizedBox(width: width);
+        },
+      );
     }
 
     return isInParentBox
@@ -444,13 +493,11 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   void onLeave(item) {
     setState(() {
       isOnLeave = true;
-
     });
   }
 
   ///
-  void onMove(DragTargetDetails details) {
-  }
+  void onMove(DragTargetDetails details) {}
 
   ///
   bool onWillAcceptWithDetails(DragTargetDetails details) {
