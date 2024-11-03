@@ -194,7 +194,9 @@ class DockItem<T extends Object> extends StatefulWidget {
 ///
 class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
-  late Widget widgetFromBuilder;
+  late Widget widgetFromBuilder = widget.builder(widget.item);
+  ///
+  late T item = widget.item;
 
   ///
   late Rect parentBox;
@@ -225,9 +227,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   @override
   void initState() {
-    print('${widget.item} initState');
+    print('$item initState');
     super.initState();
-    widgetFromBuilder = widget.builder(widget.item);
 
     ///
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -237,7 +238,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   @override
   void didChangeDependencies() {
-    print('${widget.item} didChangeDependencies');
+    print('${item} didChangeDependencies');
 
     super.didChangeDependencies();
   }
@@ -245,39 +246,39 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   @override
   void deactivate() {
     super.deactivate();
-    print('${widget.item} deactivate');
+    print('${item} deactivate');
   }
 
   @override
   void dispose() {
     super.dispose();
-    print('${widget.item} dispose');
+    print('${item} dispose');
   }
 
   @override
   void activate() {
     super.activate();
 
-    print('${widget.item} activate');
+    print('${item} activate');
   }
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    print(' ${widget.item} debugFillProperties');
+    print(' ${item} debugFillProperties');
   }
 
   @override
   void didUpdateWidget(covariant DockItem<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    print('${widget.item} didUpdateWidget');
+    print('${item} didUpdateWidget');
   }
 
   @override
   Widget build(BuildContext context) {
-    print('${widget.item} build');
+    print('${item} build');
     return Draggable<T>(
-      data: widget.item,
+      data: item,
       feedback: widgetFromBuilder,
       axis: null,
       onDragUpdate: onDragUpdate,
@@ -323,8 +324,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
     /// вызываю чтобы показать анимацию возврата элемента в изначальное положение
     widget.replaceItem(
-      itemToReplace: widget.item,
-      item: widget.item,
+      itemToReplace: item,
+      item: item,
       startOffset: offset,
       endOffset: itemBox.topLeft,
     );
@@ -340,7 +341,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   void onAcceptWithDetails(DragTargetDetails details) {
     widget.replaceItem(
       itemToReplace: details.data,
-      item: widget.item,
+      item: item,
       startOffset: details.offset,
       endOffset: itemBox.topLeft,
     );
@@ -350,6 +351,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   void onDragUpdate(DragUpdateDetails details) {
     final isContainsParentBox = parentBox.contains(details.localPosition);
     if (isInParentBox != isContainsParentBox) {
+      ///setState нужен а то не сужается место
       setState(() {
         isInParentBox = isContainsParentBox;
       });
@@ -388,7 +390,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       duration: const Duration(milliseconds: 300),
       builder: (context, width, child) {
         return Container(
-            color: Colors.red,
+            // color: Colors.red,
             child: Row(
               children: [
                 Padding(
@@ -418,7 +420,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       duration: const Duration(milliseconds: 300),
       builder: (context, width, child) {
         return Container(
-            color: Colors.blueAccent,
+            // color: Colors.blueAccent,
             child: Row(
               children: [
                 Padding(
@@ -481,9 +483,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   void onLeave(item) {
-    setState(() {
       isOnLeave = true;
-    });
+
   }
 
   ///
@@ -507,13 +508,11 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   void setItemParameters({required BuildContext context}) {
     RenderBox itemRenderBox = context.findRenderObject()! as RenderBox;
-    // setState(() {
     RenderBox parent = itemRenderBox.parent! as RenderBox;
     parentBox = getRectBox(parent);
     itemSize = itemRenderBox.size;
     tempHeight = itemSize.height;
     itemBox = getRectBox(itemRenderBox);
-    // });
   }
 
   ///
@@ -527,9 +526,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   void setTempHeight(double tempHeight) {
-    setState(() {
       this.tempHeight = tempHeight;
-    });
   }
 
   ///
