@@ -227,9 +227,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   @override
   void initState() {
-    print('$item initState');
     super.initState();
-
+    print('$item initState');
     ///
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setItemParameters(context: context);
@@ -238,9 +237,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   @override
   void didChangeDependencies() {
-    print('${item} didChangeDependencies');
-
     super.didChangeDependencies();
+    print('${item} didChangeDependencies');
   }
 
   @override
