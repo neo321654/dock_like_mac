@@ -78,11 +78,11 @@ class _DockState<T extends Object> extends State<Dock<T>> {
         mainAxisSize: MainAxisSize.min,
         children: _items
             .map((e) => DockItem(
-          key: ValueKey(e),
-          builder: widget.builder,
-          item: e,
-          replaceItem: replaceItem,
-        ))
+                  key: ValueKey(e),
+                  builder: widget.builder,
+                  item: e,
+                  replaceItem: replaceItem,
+                ))
             .toList(),
       ),
     );
@@ -169,9 +169,9 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 class DockItem<T extends Object> extends StatefulWidget {
   const DockItem(
       {required this.builder,
-        required this.item,
-        required this.replaceItem,
-        super.key});
+      required this.item,
+      required this.replaceItem,
+      super.key});
 
   ///
   final T item;
@@ -181,10 +181,10 @@ class DockItem<T extends Object> extends StatefulWidget {
 
   /// Callback function invoked when an item is dropped.
   final Function({
-  required T itemToReplace,
-  required T item,
-  required Offset startOffset,
-  required Offset endOffset,
+    required T itemToReplace,
+    required T item,
+    required Offset startOffset,
+    required Offset endOffset,
   }) replaceItem;
 
   @override
@@ -225,7 +225,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   @override
   void initState() {
-    print('initState');
+    print('${widget.item} initState');
     super.initState();
     widgetFromBuilder = widget.builder(widget.item);
 
@@ -237,7 +237,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   @override
   void didChangeDependencies() {
-    print('didChangeDependencies');
+    print('${widget.item} didChangeDependencies');
 
     super.didChangeDependencies();
   }
@@ -245,43 +245,37 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   @override
   void deactivate() {
     super.deactivate();
-    print('deactivate');
+    print('${widget.item} deactivate');
   }
 
   @override
   void dispose() {
     super.dispose();
-    print('dispose');
-  }
-
-  @override
-  void reassemble() {
-    super.reassemble();
-    print('reassemble');
+    print('${widget.item} dispose');
   }
 
   @override
   void activate() {
     super.activate();
 
-    print('activate');
+    print('${widget.item} activate');
   }
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    print('debugFillProperties');
+    print(' ${widget.item} debugFillProperties');
   }
 
   @override
   void didUpdateWidget(covariant DockItem<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    print('didUpdateWidget');
+    print('${widget.item} didUpdateWidget');
   }
 
   @override
   Widget build(BuildContext context) {
-    print('${ DateTime.now()} build');
+    print('${widget.item} build');
     return Draggable<T>(
       data: widget.item,
       feedback: widgetFromBuilder,
@@ -468,25 +462,25 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
     return isInParentBox
         ? TweenAnimationBuilder(
-      tween: Tween<double>(begin: tempHeight, end: itemSize.width),
-      onEnd: () {
-        setTempHeight(itemSize.width);
-      },
-      duration: const Duration(milliseconds: 300),
-      builder: (context, width, child) {
-        return SizedBox(width: width);
-      },
-    )
+            tween: Tween<double>(begin: tempHeight, end: itemSize.width),
+            onEnd: () {
+              setTempHeight(itemSize.width);
+            },
+            duration: const Duration(milliseconds: 300),
+            builder: (context, width, child) {
+              return SizedBox(width: width);
+            },
+          )
         : TweenAnimationBuilder(
-      tween: Tween<double>(begin: itemSize.width, end: 0),
-      onEnd: () {
-        setTempHeight(0);
-      },
-      duration: const Duration(milliseconds: 300),
-      builder: (context, width, child) {
-        return SizedBox(width: width);
-      },
-    );
+            tween: Tween<double>(begin: itemSize.width, end: 0),
+            onEnd: () {
+              setTempHeight(0);
+            },
+            duration: const Duration(milliseconds: 300),
+            builder: (context, width, child) {
+              return SizedBox(width: width);
+            },
+          );
   }
 
   ///
@@ -518,11 +512,11 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   void setItemParameters({required BuildContext context}) {
     RenderBox itemRenderBox = context.findRenderObject()! as RenderBox;
     // setState(() {
-      RenderBox parent = itemRenderBox.parent! as RenderBox;
-      parentBox = getRectBox(parent);
-      itemSize = itemRenderBox.size;
-      tempHeight = itemSize.height;
-      itemBox = getRectBox(itemRenderBox);
+    RenderBox parent = itemRenderBox.parent! as RenderBox;
+    parentBox = getRectBox(parent);
+    itemSize = itemRenderBox.size;
+    tempHeight = itemSize.height;
+    itemBox = getRectBox(itemRenderBox);
     // });
   }
 
