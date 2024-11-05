@@ -419,6 +419,11 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
     if (oldWidget.itemBox != widget.itemBox) {
       tempHeight = widget.itemBox.height;
     }
+
+    // if (oldWidget.isDragEnd != widget.itemBox) {
+      isDragEnd = false;
+    // }
+
   }
 
   @override
@@ -500,6 +505,8 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
 
   ///
   void onDraggableCanceled(velocity, offset) {
+
+    isDragEnd = true;
 
     widget.replaceItem(
         itemToReplace: widget.item,
