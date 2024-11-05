@@ -215,16 +215,10 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   late double tempHeight;
 
   ///
-  late bool? isFromLeft;
-
-  ///
   late bool isDragging;
 
   ///
   late bool isInAnotherItem;
-
-  ///
-  late bool isOnLeave;
 
   @override
   void initState() {
@@ -289,13 +283,11 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       onDraggableCanceled: onDraggableCanceled,
       onDragCompleted: onDragCompleted,
       dragAnchorStrategy: dragAnchorStrategy,
-      child: DragTarget(
-        builder: dragTargetBuilder,
-        onWillAcceptWithDetails: onWillAcceptWithDetails,
-        onAcceptWithDetails: onAcceptWithDetails,
-        onMove: onMove,
-        onLeave: onLeave,
-      ),
+      child: DragTargetItem<T>(
+          widgetFromBuilder: widgetFromBuilder,
+          itemSize: itemSize,
+          itemBox: itemBox,
+          onAcceptWithDetails: onAcceptWithDetails),
     );
   }
 
@@ -341,16 +333,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   }
 
   ///
-  void onAcceptWithDetails(DragTargetDetails details) {
-    widget.replaceItem(
-      itemToReplace: details.data,
-      item: item,
-      startOffset: details.offset,
-      endOffset: itemBox.topLeft,
-    );
-  }
-
-  ///
   void onDragUpdate(DragUpdateDetails details) {
     final isContainsParentBox = parentBox.contains(details.localPosition);
     if (isInParentBox != isContainsParentBox) {
@@ -369,81 +351,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       }
       // print('isInAnotherItem $isInAnotherItem');
     }
-  }
-
-  ///
-  Widget dragTargetBuilder(context, candidateData, rejectedData) {
-    /// отображение когда входит нужный айтем
-    if (candidateData.isNotEmpty && candidateData.first.runtimeType == T) {
-      return getWidgetInDragTarget();
-    }
-
-    if (isOnLeave) {
-      return getWidgetInDragTargetOnLeave();
-    }
-
-    /// стандартное отображение
-    return widgetFromBuilder;
-  }
-
-  ///
-  Widget getWidgetInDragTarget() {
-    return TweenAnimationBuilder(
-      tween: Tween<double>(begin: 0, end: itemSize.width),
-      duration: const Duration(milliseconds: 300),
-      builder: (context, width, child) {
-        return Container(
-            color: Colors.red,
-            child: Row(
-              children: [
-                Padding(
-                  // padding: EdgeInsets.only(left: width),
-                  padding: EdgeInsets.only(
-                    right: isFromLeft! ? width : 0,
-                    left: !isFromLeft! ? width : 0,
-                  ),
-                  child: child,
-                ),
-              ],
-            ));
-      },
-      child: widgetFromBuilder,
-    );
-
-    // return Container(
-    //   color: Colors.blueAccent,
-    //   child: widgetFromBuilder,
-    // );
-  }
-
-  ///
-  Widget getWidgetInDragTargetOnLeave() {
-    return TweenAnimationBuilder(
-      tween: Tween<double>(begin: itemSize.width, end: 0),
-      duration: const Duration(milliseconds: 300),
-      builder: (context, width, child) {
-        return Container(
-            // color: Colors.blueAccent,
-            child: Row(
-          children: [
-            Padding(
-              // padding: EdgeInsets.only(left: width),
-              padding: EdgeInsets.only(
-                right: isFromLeft! ? width : 0,
-                left: !isFromLeft! ? width : 0,
-              ),
-              child: child,
-            ),
-          ],
-        ));
-      },
-      child: widgetFromBuilder,
-    );
-
-    // return Container(
-    //   color: Colors.blueAccent,
-    //   child: widgetFromBuilder,
-    // );
   }
 
   ///
@@ -506,26 +413,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   }
 
   ///
-  void onLeave(item) {
-    isOnLeave = true;
-  }
-
-  ///
-  void onMove(DragTargetDetails details) {}
-
-  ///
-  bool onWillAcceptWithDetails(DragTargetDetails details) {
-    //todo срабатывает когда начинаешь тянуть , нужно избежать первый раз
-
-      isFromLeft = getIsGoFromLeft(
-        currentOffset: details.offset,
-        itemBoxCenterLeft: itemBox.centerLeft,
-      );
-
-    return true;
-  }
-
-  ///
   void setItemParameters({required BuildContext context}) {
     RenderBox itemRenderBox = context.findRenderObject()! as RenderBox;
     RenderBox parent = itemRenderBox.parent! as RenderBox;
@@ -550,11 +437,13 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   }
 
   ///
-  bool getIsGoFromLeft({
-    required Offset currentOffset,
-    required Offset itemBoxCenterLeft,
-  }) {
-    return (currentOffset.dx - itemBoxCenterLeft.dx).isNegative;
+  void onAcceptWithDetails(DragTargetDetails details) {
+    widget.replaceItem(
+      itemToReplace: details.data,
+      item: item,
+      startOffset: details.offset,
+      endOffset: itemBox.topLeft,
+    );
   }
 
   ///
@@ -576,11 +465,152 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
     ///
     isInAnotherItem = false;
+  }
+}
+///
+class DragTargetItem<T extends Object> extends StatefulWidget {
+  const DragTargetItem({
+    required this.widgetFromBuilder,
+    required this.onAcceptWithDetails,
+    super.key,
+    required this.itemSize,
+    required this.itemBox,
+  });
 
-    ///
-    isOnLeave = false;
+  ///
+  final Widget widgetFromBuilder;
 
-    ///
-    isFromLeft = null;
+  ///
+  final Size itemSize;
+
+  ///
+  final Rect itemBox;
+
+  ///
+  final void Function(DragTargetDetails details) onAcceptWithDetails;
+
+  @override
+  State<DragTargetItem<T>> createState() => _DragTargetItemState<T>();
+}
+///
+class _DragTargetItemState<T extends Object> extends State<DragTargetItem<T>> {
+  ///
+  bool isOnLeave = false;
+
+  ///
+  bool? isFromLeft;
+
+  @override
+  Widget build(BuildContext context) {
+    return DragTarget<T>(
+      builder: dragTargetBuilder,
+      onWillAcceptWithDetails: onWillAcceptWithDetails,
+      onAcceptWithDetails: onAcceptWithDetailsTarget,
+      onMove: onMove,
+      onLeave: onLeave,
+    );
+  }
+
+  ///
+  Widget dragTargetBuilder(context, candidateData, rejectedData) {
+    /// отображение когда входит нужный айтем
+    if (candidateData.isNotEmpty && candidateData.first.runtimeType == T) {
+      return getWidgetInDragTarget();
+    }
+
+    if (isOnLeave) {
+      return getWidgetInDragTargetOnLeave();
+    }
+
+    /// стандартное отображение
+    return widget.widgetFromBuilder;
+  }
+
+  ///
+  bool onWillAcceptWithDetails(DragTargetDetails details) {
+    //todo срабатывает когда начинаешь тянуть , нужно избежать первый раз
+
+    isFromLeft = getIsGoFromLeft(
+      currentOffset: details.offset,
+      itemBoxCenterLeft: widget.itemBox.centerLeft,
+    );
+
+    return true;
+  }
+
+  ///
+  void onAcceptWithDetailsTarget(DragTargetDetails details) {
+    widget.onAcceptWithDetails(details);
+  }
+
+  ///
+  void onMove(DragTargetDetails details) {}
+
+  ///
+  void onLeave(item) {
+    isOnLeave = true;
+  }
+
+  ///
+  Widget getWidgetInDragTarget() {
+    return TweenAnimationBuilder(
+      tween: Tween<double>(begin: 0, end: widget.itemSize.width),
+      duration: const Duration(milliseconds: 300),
+      builder: (context, width, child) {
+        return Container(
+            color: Colors.red,
+            child: Row(
+              children: [
+                Padding(
+                  // padding: EdgeInsets.only(left: width),
+                  padding: EdgeInsets.only(
+                    right: isFromLeft! ? width : 0,
+                    left: !isFromLeft! ? width : 0,
+                  ),
+                  child: child,
+                ),
+              ],
+            ));
+      },
+      child: widget.widgetFromBuilder,
+    );
+  }
+
+  ///
+  Widget getWidgetInDragTargetOnLeave() {
+    return TweenAnimationBuilder(
+      tween: Tween<double>(begin: widget.itemSize.width, end: 0),
+      duration: const Duration(milliseconds: 300),
+      builder: (context, width, child) {
+        return Container(
+            // color: Colors.blueAccent,
+            child: Row(
+          children: [
+            Padding(
+              // padding: EdgeInsets.only(left: width),
+              padding: EdgeInsets.only(
+                right: isFromLeft! ? width : 0,
+                left: !isFromLeft! ? width : 0,
+              ),
+              child: child,
+            ),
+          ],
+        ));
+      },
+      child: widget.widgetFromBuilder,
+    );
+
+    // return Container(
+    //   color: Colors.blueAccent,
+    //   child: widgetFromBuilder,
+    // );
+  }
+
+  ///
+  bool getIsGoFromLeft({
+    required Offset currentOffset,
+    required Offset itemBoxCenterLeft,
+  }) {
+    return (currentOffset.dx - itemBoxCenterLeft.dx).isNegative;
   }
 }
