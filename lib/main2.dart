@@ -287,7 +287,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
           widgetFromBuilder: widgetFromBuilder,
           itemSize: itemSize,
           itemBox: itemBox,
-          onAcceptWithDetails: onAcceptWithDetails),
+          item: item,
+          replaceItem: widget.replaceItem),
     );
   }
 
@@ -414,36 +415,19 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   void setItemParameters({required BuildContext context}) {
-    RenderBox itemRenderBox = context.findRenderObject()! as RenderBox;
-    RenderBox parent = itemRenderBox.parent! as RenderBox;
-    parentBox = getRectBox(parent);
-    itemSize = itemRenderBox.size;
-    tempHeight = itemSize.height;
-    itemBox = getRectBox(itemRenderBox);
-  }
-
-  ///
-  Rect getRectBox(RenderBox renderBox) {
-    Rect box = renderBox.paintBounds;
-    Offset topLeftGlobal = renderBox.localToGlobal(box.topLeft);
-    Offset bottomRightGlobal = renderBox.localToGlobal(box.bottomRight);
-    return Rect.fromLTRB(topLeftGlobal.dx, topLeftGlobal.dy,
-        bottomRightGlobal.dx, bottomRightGlobal.dy);
+    setState(() {
+      RenderBox itemRenderBox = context.findRenderObject()! as RenderBox;
+      RenderBox parent = itemRenderBox.parent! as RenderBox;
+      parentBox = getRectBox(parent);
+      itemSize = itemRenderBox.size;
+      tempHeight = itemSize.height;
+      itemBox = getRectBox(itemRenderBox);
+    });
   }
 
   ///
   void setTempHeight(double tempHeight) {
     this.tempHeight = tempHeight;
-  }
-
-  ///
-  void onAcceptWithDetails(DragTargetDetails details) {
-    widget.replaceItem(
-      itemToReplace: details.data,
-      item: item,
-      startOffset: details.offset,
-      endOffset: itemBox.topLeft,
-    );
   }
 
   ///
@@ -467,15 +451,20 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     isInAnotherItem = false;
   }
 }
+
 ///
 class DragTargetItem<T extends Object> extends StatefulWidget {
   const DragTargetItem({
     required this.widgetFromBuilder,
-    required this.onAcceptWithDetails,
+    required this.replaceItem,
     super.key,
     required this.itemSize,
     required this.itemBox,
+    required this.item,
   });
+
+  ///
+  final T item;
 
   ///
   final Widget widgetFromBuilder;
@@ -487,11 +476,17 @@ class DragTargetItem<T extends Object> extends StatefulWidget {
   final Rect itemBox;
 
   ///
-  final void Function(DragTargetDetails details) onAcceptWithDetails;
+  final Function({
+    required T itemToReplace,
+    required T item,
+    required Offset startOffset,
+    required Offset endOffset,
+  }) replaceItem;
 
   @override
   State<DragTargetItem<T>> createState() => _DragTargetItemState<T>();
 }
+
 ///
 class _DragTargetItemState<T extends Object> extends State<DragTargetItem<T>> {
   ///
@@ -540,7 +535,12 @@ class _DragTargetItemState<T extends Object> extends State<DragTargetItem<T>> {
 
   ///
   void onAcceptWithDetailsTarget(DragTargetDetails details) {
-    widget.onAcceptWithDetails(details);
+    widget.replaceItem(
+      itemToReplace: details.data,
+      item: widget.item,
+      startOffset: details.offset,
+      endOffset: widget.itemBox.topLeft,
+    );
   }
 
   ///
@@ -613,4 +613,13 @@ class _DragTargetItemState<T extends Object> extends State<DragTargetItem<T>> {
   }) {
     return (currentOffset.dx - itemBoxCenterLeft.dx).isNegative;
   }
+}
+
+///
+Rect getRectBox(RenderBox renderBox) {
+  Rect box = renderBox.paintBounds;
+  Offset topLeftGlobal = renderBox.localToGlobal(box.topLeft);
+  Offset bottomRightGlobal = renderBox.localToGlobal(box.bottomRight);
+  return Rect.fromLTRB(topLeftGlobal.dx, topLeftGlobal.dy, bottomRightGlobal.dx,
+      bottomRightGlobal.dy);
 }
