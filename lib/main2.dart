@@ -206,21 +206,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   Rect parentBox = Rect.zero;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    print('${item} didChangeDependencies');
-  }
-
-  @override
-  void didUpdateWidget(covariant DockItem<T> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    print('${item} didUpdateWidget');
-  }
-
-  @override
   void initState() {
     super.initState();
-    print('$item initState');
 
     ///
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -230,6 +217,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   @override
   Widget build(BuildContext context) {
+    print('build1 $itemBox');
+
     return DraggableItem<T>(
       item: item,
       widgetFromBuilder: widgetFromBuilder,
@@ -465,7 +454,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   bool isInParentBox = true;
 
   ///
-  late double tempHeight = widget.itemBox.height;
+  double? tempHeight ;
 
   ///
   bool isDragging = false;
@@ -473,8 +462,29 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   ///
   bool isInAnotherItem = false;
 
+
+  @override
+  void initState() {
+    super.initState();
+    // tempHeight = widget.itemBox.height;
+  }
+
+  @override
+  void didUpdateWidget(covariant DraggableItem<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if(oldWidget.itemBox!=widget.itemBox){
+      print('dfdfdf');
+      tempHeight = widget.itemBox.height;
+
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
+    print('buildDrag $tempHeight');
+    print('buildDrag ${widget.itemBox}');
     return Draggable<T>(
       data: widget.item,
       feedback: widget.widgetFromBuilder,
@@ -572,17 +582,30 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
 
     if (isInParentBox) {
 
-      return widget.widgetFromBuilder;
+      return TweenAnimationBuilder(
+        tween: Tween<double>(begin: widget.itemBox.width, end: tempHeight),
+        onEnd: () {
+          setTempHeight(widget.itemBox.width);
+        },
+        duration: const Duration(milliseconds: 300),
+        builder: (context, width, child) {
+          return Container(
+            color: Colors.indigo,
+            width: width,
+            height: width,
+          );
+        },
+      );
     } else {
       print('!!!!isInParentBox');
 
       return TweenAnimationBuilder(
         tween: Tween<double>(
-            begin: widget.itemBox.width, end: 0),
+            begin: widget.itemBox.width, end: widget.itemBox.width),
         // tween: Tween<double>(begin: itemSize.width, end: 0),
-        // onEnd: () {
-        //   setTempHeight(0);
-        // },
+        onEnd: () {
+          setTempHeight(230);
+        },
         duration: const Duration(milliseconds: 300),
         builder: (context, width, child) {
           return Container(
@@ -597,6 +620,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
 
   ///
   void setTempHeight(double tempHeight) {
+    print('tempHeight $tempHeight');
     setState(() {
       this.tempHeight = tempHeight;
     });
