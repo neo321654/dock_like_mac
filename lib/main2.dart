@@ -194,10 +194,10 @@ class DockItem<T extends Object> extends StatefulWidget {
 ///
 class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
-  late Widget widgetFromBuilder = widget.builder(widget.item);
+  late final Widget _widgetFromBuilder = widget.builder(widget.item);
 
   ///
-  late T item = widget.item;
+  late final T _item = widget.item;
 
   ///
   Rect itemBox = Rect.zero;
@@ -217,18 +217,16 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   @override
   Widget build(BuildContext context) {
-    print('build1 $itemBox');
-
     return DraggableItem<T>(
-      item: item,
-      widgetFromBuilder: widgetFromBuilder,
+      item: _item,
+      widgetFromBuilder: _widgetFromBuilder,
       itemBox: itemBox,
       parentBox: parentBox,
       replaceItem: widget.replaceItem,
       child: DragTargetItem<T>(
-        widgetFromBuilder: widgetFromBuilder,
+        widgetFromBuilder: _widgetFromBuilder,
         itemBox: itemBox,
-        item: item,
+        item: _item,
         replaceItem: widget.replaceItem,
       ),
     );
@@ -454,7 +452,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   bool isInParentBox = true;
 
   ///
-  double? tempHeight ;
+  double? tempHeight;
 
   ///
   bool isDragging = false;
@@ -462,29 +460,17 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   ///
   bool isInAnotherItem = false;
 
-
-  @override
-  void initState() {
-    super.initState();
-    // tempHeight = widget.itemBox.height;
-  }
-
   @override
   void didUpdateWidget(covariant DraggableItem<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if(oldWidget.itemBox!=widget.itemBox){
-      print('dfdfdf');
+    if (oldWidget.itemBox != widget.itemBox) {
       tempHeight = widget.itemBox.height;
-
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-    print('buildDrag $tempHeight');
-    print('buildDrag ${widget.itemBox}');
     return Draggable<T>(
       data: widget.item,
       feedback: widget.widgetFromBuilder,
@@ -581,7 +567,6 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
     }
 
     if (isInParentBox) {
-
       return TweenAnimationBuilder(
         tween: Tween<double>(begin: widget.itemBox.width, end: tempHeight),
         onEnd: () {
