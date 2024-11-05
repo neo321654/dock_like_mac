@@ -498,26 +498,26 @@ class _DragTargetItemState<T extends Object> extends State<DragTargetItem<T>> {
   @override
   Widget build(BuildContext context) {
     return DragTarget<T>(
-      builder: dragTargetBuilder,
+      builder: builder,
       onWillAcceptWithDetails: onWillAcceptWithDetails,
-      onAcceptWithDetails: onAcceptWithDetailsTarget,
+      onAcceptWithDetails: onAcceptWithDetails,
       onMove: onMove,
       onLeave: onLeave,
     );
   }
 
   ///
-  Widget dragTargetBuilder(context, candidateData, rejectedData) {
+  Widget builder(context, candidateData, rejectedData) {
     /// отображение когда входит нужный айтем
     if (candidateData.isNotEmpty && candidateData.first.runtimeType == T) {
       return getWidgetInDragTarget();
     }
-
+    /// отображение когда выходит нужный айтем
     if (isOnLeave) {
       return getWidgetInDragTargetOnLeave();
     }
 
-    /// стандартное отображение
+    /// стандартное отображение , когда ничего не меняется
     return widget.widgetFromBuilder;
   }
 
@@ -534,7 +534,7 @@ class _DragTargetItemState<T extends Object> extends State<DragTargetItem<T>> {
   }
 
   ///
-  void onAcceptWithDetailsTarget(DragTargetDetails details) {
+  void onAcceptWithDetails(DragTargetDetails details) {
     widget.replaceItem(
       itemToReplace: details.data,
       item: widget.item,
@@ -611,6 +611,7 @@ class _DragTargetItemState<T extends Object> extends State<DragTargetItem<T>> {
     required Offset currentOffset,
     required Offset itemBoxCenterLeft,
   }) {
+    print((currentOffset.dx - itemBoxCenterLeft.dx));
     return (currentOffset.dx - itemBoxCenterLeft.dx).isNegative;
   }
 }
