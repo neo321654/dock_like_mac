@@ -247,7 +247,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return Draggable<T>(
+    return DraggableItem<T>(
       data: item,
       feedback: widgetFromBuilder,
       axis: null,
@@ -331,9 +331,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   Widget getChildWhenDragging() {
-    print('getChildWhenDragging');
     if (isInAnotherItem) {
-      print('isInAnotherItem');
       return TweenAnimationBuilder(
         tween: Tween<double>(begin: tempHeight, end: 0),
         onEnd: () {
@@ -351,7 +349,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     }
 
     if (isInParentBox) {
-      print('isInParentBox');
 
       return TweenAnimationBuilder(
         tween: Tween<double>(begin: tempHeight, end: itemSize.width),
@@ -591,6 +588,38 @@ class _DragTargetItemState<T extends Object> extends State<DragTargetItem<T>> {
     return (currentOffset.dx - itemBoxCenterLeft.dx).isNegative;
   }
 }
+
+///
+class DraggableItem<T extends Object> extends StatefulWidget {
+  const DraggableItem({required this.child,super.key});
+
+  final Widget child;
+
+  @override
+  State<DraggableItem> createState() => _DraggableItemState<T>();
+}
+
+class _DraggableItemState<T extends Object> extends State<DraggableItem> {
+  @override
+  Widget build(BuildContext context) {
+    return Draggable<T>(
+      data: item,
+      feedback: widgetFromBuilder,
+      axis: null,
+      onDragUpdate: onDragUpdate,
+      childWhenDragging: getChildWhenDragging(),
+      onDragEnd: onDragEnd,
+      onDragStarted: onDragStarted,
+      onDraggableCanceled: onDraggableCanceled,
+      onDragCompleted: onDragCompleted,
+      dragAnchorStrategy: dragAnchorStrategy,
+      child: widget.child,
+    );
+  }
+}
+
+
+///
 
 ///
 Rect getRectBox(RenderBox renderBox) {
