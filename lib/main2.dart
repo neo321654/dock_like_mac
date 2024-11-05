@@ -234,6 +234,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       item: item,
       widgetFromBuilder: widgetFromBuilder,
       itemBox: itemBox,
+      parentBox: parentBox,
       replaceItem: widget.replaceItem,
       child: DragTargetItem<T>(
         widgetFromBuilder: widgetFromBuilder,
@@ -422,6 +423,7 @@ class DraggableItem<T extends Object> extends StatefulWidget {
     required this.item,
     required this.child,
     required this.itemBox,
+    required this.parentBox,
     required this.widgetFromBuilder,
     required this.replaceItem,
     super.key,
@@ -440,6 +442,9 @@ class DraggableItem<T extends Object> extends StatefulWidget {
   final Rect itemBox;
 
   ///
+  final Rect parentBox;
+
+  ///
   final Function({
     required T itemToReplace,
     required T item,
@@ -451,15 +456,16 @@ class DraggableItem<T extends Object> extends StatefulWidget {
   State<DraggableItem<T>> createState() => _DraggableItemState<T>();
 }
 
+///
 class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   ///
-  Rect parentBox = Rect.zero;
+  late Rect parentBox = widget.parentBox;
 
   ///
   bool isInParentBox = true;
 
   ///
-  double tempHeight = 0;
+  late double tempHeight = widget.itemBox.height;
 
   ///
   bool isDragging = false;
@@ -565,30 +571,18 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
     }
 
     if (isInParentBox) {
-      return TweenAnimationBuilder(
-        tween: Tween<double>(begin: tempHeight, end: widget.itemBox.width),
-        onEnd: () {
-          setTempHeight(widget.itemBox.width);
-        },
-        duration: const Duration(milliseconds: 300),
-        builder: (context, width, child) {
-          return Container(
-            color: Colors.indigo,
-            width: width,
-            height: width,
-          );
-        },
-      );
+
+      return widget.widgetFromBuilder;
     } else {
       print('!!!!isInParentBox');
 
       return TweenAnimationBuilder(
         tween: Tween<double>(
-            begin: widget.itemBox.width, end: widget.itemBox.width),
+            begin: widget.itemBox.width, end: 0),
         // tween: Tween<double>(begin: itemSize.width, end: 0),
-        onEnd: () {
-          setTempHeight(0);
-        },
+        // onEnd: () {
+        //   setTempHeight(0);
+        // },
         duration: const Duration(milliseconds: 300),
         builder: (context, width, child) {
           return Container(
@@ -603,9 +597,10 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
 
   ///
   void setTempHeight(double tempHeight) {
-    this.tempHeight = tempHeight;
+    setState(() {
+      this.tempHeight = tempHeight;
+    });
   }
-
 }
 
 ///
