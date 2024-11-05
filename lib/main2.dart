@@ -200,44 +200,19 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   late T item = widget.item;
 
   ///
-  late Rect parentBox;
-
-  ///
-  late bool isInParentBox;
-
-  ///
   late Size itemSize;
 
   ///
-  late Rect itemBox;
+  Rect itemBox = Rect.zero;
 
   ///
-  late double tempHeight;
-
-  ///
-  late bool isDragging;
-
-  ///
-  late bool isInAnotherItem;
-
-  @override
-  void initState() {
-    super.initState();
-    print('$item initState');
-    setDefaultValues();
-
-    ///
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      setItemParameters(context: context);
-    });
-  }
+  late Rect parentBox;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     print('${item} didChangeDependencies');
   }
-
 
   @override
   void didUpdateWidget(covariant DockItem<T> oldWidget) {
@@ -246,143 +221,30 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return DraggableItem<T>(
-      data: item,
-      feedback: widgetFromBuilder,
-      axis: null,
-      onDragUpdate: onDragUpdate,
-      childWhenDragging: getChildWhenDragging(),
-      onDragEnd: onDragEnd,
-      onDragStarted: onDragStarted,
-      onDraggableCanceled: onDraggableCanceled,
-      onDragCompleted: onDragCompleted,
-      dragAnchorStrategy: dragAnchorStrategy,
-      child: DragTargetItem<T>(
-          widgetFromBuilder: widgetFromBuilder,
-          itemSize: itemSize,
-          itemBox: itemBox,
-          item: item,
-          replaceItem: widget.replaceItem),
-    );
-  }
+  void initState() {
+    super.initState();
+    print('$item initState');
 
-  ///
-  Offset dragAnchorStrategy(
-      Draggable<Object> draggable, BuildContext context, Offset position) {
-    final RenderBox renderObject = context.findRenderObject()! as RenderBox;
-
-    /// возвращаю обычный [childDragAnchorStrategy]
-    return renderObject.globalToLocal(position);
-  }
-
-  ///
-  void onDragEnd(DraggableDetails details) {
-    isDragging = false;
-  }
-
-  ///
-  void onDragStarted() {
-    setState(() {
-      isDragging = true;
+    ///
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setItemParameters(context: context);
     });
   }
 
-  ///
-  void onDraggableCanceled(velocity, offset) {
-    isInParentBox = true;
-    setTempHeight(itemSize.height);
-
-    /// вызываю чтобы показать анимацию возврата элемента в изначальное положение
-    widget.replaceItem(
-      itemToReplace: item,
+  @override
+  Widget build(BuildContext context) {
+    return DraggableItem<T>(
       item: item,
-      startOffset: offset,
-      endOffset: itemBox.topLeft,
+      widgetFromBuilder: widgetFromBuilder,
+      itemBox: itemBox,
+      replaceItem: widget.replaceItem,
+      child: DragTargetItem<T>(
+        widgetFromBuilder: widgetFromBuilder,
+        itemBox: itemBox,
+        item: item,
+        replaceItem: widget.replaceItem,
+      ),
     );
-  }
-
-  ///
-  void onDragCompleted() {
-    isInParentBox = true;
-    setTempHeight(itemSize.height);
-  }
-
-  ///
-  void onDragUpdate(DragUpdateDetails details) {
-    final isContainsParentBox = parentBox.contains(details.localPosition);
-    if (isInParentBox != isContainsParentBox) {
-      ///setState нужен а то не сужается место
-      setState(() {
-        isInParentBox = isContainsParentBox;
-      });
-    }
-
-    if (isInParentBox) {
-      final isContainsItemBox = !itemBox.contains(details.localPosition);
-      if (isInAnotherItem != isContainsItemBox) {
-        setState(() {
-          isInAnotherItem = isContainsItemBox;
-        });
-      }
-      // print('isInAnotherItem $isInAnotherItem');
-    }
-  }
-
-  ///
-  Widget getChildWhenDragging() {
-    if (isInAnotherItem) {
-      return TweenAnimationBuilder(
-        tween: Tween<double>(begin: tempHeight, end: 0),
-        onEnd: () {
-          setTempHeight(itemSize.width);
-        },
-        duration: const Duration(milliseconds: 300),
-        builder: (context, width, child) {
-          return Container(
-            color: Colors.greenAccent,
-            width: width,
-            height: width,
-          );
-        },
-      );
-    }
-
-    if (isInParentBox) {
-
-      return TweenAnimationBuilder(
-        tween: Tween<double>(begin: tempHeight, end: itemSize.width),
-        onEnd: () {
-          setTempHeight(itemSize.width);
-        },
-        duration: const Duration(milliseconds: 300),
-        builder: (context, width, child) {
-          return Container(
-            color: Colors.indigo,
-            width: width,
-            height: width,
-          );
-        },
-      );
-    } else {
-      print('!!!!isInParentBox');
-
-      return TweenAnimationBuilder(
-        tween: Tween<double>(begin: itemSize.width, end: itemSize.width),
-        // tween: Tween<double>(begin: itemSize.width, end: 0),
-        onEnd: () {
-          setTempHeight(0);
-        },
-        duration: const Duration(milliseconds: 300),
-        builder: (context, width, child) {
-          return Container(
-            color: Colors.amberAccent,
-            width: width,
-            height: width,
-          );
-        },
-      );
-    }
   }
 
   ///
@@ -392,35 +254,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       RenderBox parent = itemRenderBox.parent! as RenderBox;
       parentBox = getRectBox(parent);
       itemSize = itemRenderBox.size;
-      tempHeight = itemSize.height;
       itemBox = getRectBox(itemRenderBox);
     });
-  }
-
-  ///
-  void setTempHeight(double tempHeight) {
-    this.tempHeight = tempHeight;
-  }
-
-  ///
-  void setDefaultValues() {
-    ///
-    isInParentBox = true;
-
-    ///
-    itemSize = Size.zero;
-
-    ///
-    itemBox = Rect.zero;
-
-    ///
-    tempHeight = 0;
-
-    ///
-    isDragging = false;
-
-    ///
-    isInAnotherItem = false;
   }
 }
 
@@ -430,7 +265,6 @@ class DragTargetItem<T extends Object> extends StatefulWidget {
     required this.widgetFromBuilder,
     required this.replaceItem,
     super.key,
-    required this.itemSize,
     required this.itemBox,
     required this.item,
   });
@@ -440,9 +274,6 @@ class DragTargetItem<T extends Object> extends StatefulWidget {
 
   ///
   final Widget widgetFromBuilder;
-
-  ///
-  final Size itemSize;
 
   ///
   final Rect itemBox;
@@ -527,7 +358,7 @@ class _DragTargetItemState<T extends Object> extends State<DragTargetItem<T>> {
   ///
   Widget getWidgetInDragTarget() {
     return TweenAnimationBuilder(
-      tween: Tween<double>(begin: 0, end: widget.itemSize.width),
+      tween: Tween<double>(begin: 0, end: widget.itemBox.width),
       duration: const Duration(milliseconds: 300),
       builder: (context, width, child) {
         return Container(
@@ -552,7 +383,7 @@ class _DragTargetItemState<T extends Object> extends State<DragTargetItem<T>> {
   ///
   Widget getWidgetInDragTargetOnLeave() {
     return TweenAnimationBuilder(
-      tween: Tween<double>(begin: widget.itemSize.width, end: 0),
+      tween: Tween<double>(begin: widget.itemBox.width, end: 0),
       duration: const Duration(milliseconds: 300),
       builder: (context, width, child) {
         return Container(
@@ -591,20 +422,60 @@ class _DragTargetItemState<T extends Object> extends State<DragTargetItem<T>> {
 
 ///
 class DraggableItem<T extends Object> extends StatefulWidget {
-  const DraggableItem({required this.child,super.key});
+  const DraggableItem({
+    required this.item,
+    required this.child,
+    required this.itemBox,
+    required this.widgetFromBuilder,
+    required this.replaceItem,
+    super.key,
+  });
 
+  ///
+  final T item;
+
+  ///
   final Widget child;
 
+  ///
+  final Widget widgetFromBuilder;
+
+  ///
+  final Rect itemBox;
+
+  ///
+  final Function({
+    required T itemToReplace,
+    required T item,
+    required Offset startOffset,
+    required Offset endOffset,
+  }) replaceItem;
+
   @override
-  State<DraggableItem> createState() => _DraggableItemState<T>();
+  State<DraggableItem<T>> createState() => _DraggableItemState<T>();
 }
 
-class _DraggableItemState<T extends Object> extends State<DraggableItem> {
+class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
+  ///
+  late Rect parentBox;
+
+  ///
+  bool isInParentBox = true;
+
+  ///
+  double tempHeight = 0;
+
+  ///
+  late bool isDragging;
+
+  ///
+  bool isInAnotherItem = false;
+
   @override
   Widget build(BuildContext context) {
     return Draggable<T>(
-      data: item,
-      feedback: widgetFromBuilder,
+      data: widget.item,
+      feedback: widget.widgetFromBuilder,
       axis: null,
       onDragUpdate: onDragUpdate,
       childWhenDragging: getChildWhenDragging(),
@@ -616,8 +487,145 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem> {
       child: widget.child,
     );
   }
-}
 
+  ///
+  void onDragUpdate(DragUpdateDetails details) {
+    final isContainsParentBox = parentBox.contains(details.localPosition);
+    if (isInParentBox != isContainsParentBox) {
+      ///setState нужен а то не сужается место
+      setState(() {
+        isInParentBox = isContainsParentBox;
+      });
+    }
+
+    if (isInParentBox) {
+      final isContainsItemBox = !widget.itemBox.contains(details.localPosition);
+      if (isInAnotherItem != isContainsItemBox) {
+        setState(() {
+          isInAnotherItem = isContainsItemBox;
+        });
+      }
+      // print('isInAnotherItem $isInAnotherItem');
+    }
+  }
+
+  ///
+  Offset dragAnchorStrategy(
+      Draggable<Object> draggable, BuildContext context, Offset position) {
+    final RenderBox renderObject = context.findRenderObject()! as RenderBox;
+
+    /// возвращаю обычный [childDragAnchorStrategy]
+    return renderObject.globalToLocal(position);
+  }
+
+  ///
+  void onDragEnd(DraggableDetails details) {
+    isDragging = false;
+  }
+
+  ///
+  void onDragStarted() {
+    setState(() {
+      isDragging = true;
+    });
+  }
+
+  ///
+  void onDraggableCanceled(velocity, offset) {
+    isInParentBox = true;
+    setTempHeight(widget.itemBox.height);
+
+    /// вызываю чтобы показать анимацию возврата элемента в изначальное положение
+    widget.replaceItem(
+      itemToReplace: widget.item,
+      item: widget.item,
+      startOffset: offset,
+      endOffset: widget.itemBox.topLeft,
+    );
+  }
+
+  ///
+  void onDragCompleted() {
+    isInParentBox = true;
+    setTempHeight(widget.itemBox.height);
+  }
+
+  ///
+  Widget getChildWhenDragging() {
+    if (isInAnotherItem) {
+      return TweenAnimationBuilder(
+        tween: Tween<double>(begin: tempHeight, end: 0),
+        onEnd: () {
+          setTempHeight(widget.itemBox.width);
+        },
+        duration: const Duration(milliseconds: 300),
+        builder: (context, width, child) {
+          return Container(
+            color: Colors.greenAccent,
+            width: width,
+            height: width,
+          );
+        },
+      );
+    }
+
+    if (isInParentBox) {
+      return TweenAnimationBuilder(
+        tween: Tween<double>(begin: tempHeight, end: widget.itemBox.width),
+        onEnd: () {
+          setTempHeight(widget.itemBox.width);
+        },
+        duration: const Duration(milliseconds: 300),
+        builder: (context, width, child) {
+          return Container(
+            color: Colors.indigo,
+            width: width,
+            height: width,
+          );
+        },
+      );
+    } else {
+      print('!!!!isInParentBox');
+
+      return TweenAnimationBuilder(
+        tween: Tween<double>(
+            begin: widget.itemBox.width, end: widget.itemBox.width),
+        // tween: Tween<double>(begin: itemSize.width, end: 0),
+        onEnd: () {
+          setTempHeight(0);
+        },
+        duration: const Duration(milliseconds: 300),
+        builder: (context, width, child) {
+          return Container(
+            color: Colors.amberAccent,
+            width: width,
+            height: width,
+          );
+        },
+      );
+    }
+  }
+
+  ///
+  void setTempHeight(double tempHeight) {
+    this.tempHeight = tempHeight;
+  }
+
+  ///
+  void setDefaultValues() {
+    ///
+    isInParentBox = true;
+
+    ///
+    tempHeight = 0;
+
+    ///
+    isDragging = false;
+
+    ///
+    isInAnotherItem = false;
+  }
+}
 
 ///
 
