@@ -406,7 +406,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   double? tempHeight;
 
   ///
-  bool isDragging = false;
+  bool isDragEnd = false;
 
   ///
   bool isInAnotherItem = false;
@@ -424,7 +424,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   @override
   Widget build(BuildContext context) {
 
-    if(isDragging && !isInParentBox){
+    if(isDragEnd){
       print('build ${ widget.item} isDragging !!!isInParentBox');
       return Text('dff');
     }
@@ -500,7 +500,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
 
   ///
   void onDraggableCanceled(velocity, offset) {
-    isInParentBox = false;
+
     widget.replaceItem(
         itemToReplace: widget.item,
         item: widget.item,
@@ -512,9 +512,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
 
   ///
   void onDragStarted() {
-    setState(() {
-      isDragging = true;
-    });
+
   }
 
 
