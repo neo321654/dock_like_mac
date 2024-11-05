@@ -200,13 +200,10 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   late T item = widget.item;
 
   ///
-  late Size itemSize;
-
-  ///
   Rect itemBox = Rect.zero;
 
   ///
-  late Rect parentBox;
+  Rect parentBox = Rect.zero;
 
   @override
   void didChangeDependencies() {
@@ -253,7 +250,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       RenderBox itemRenderBox = context.findRenderObject()! as RenderBox;
       RenderBox parent = itemRenderBox.parent! as RenderBox;
       parentBox = getRectBox(parent);
-      itemSize = itemRenderBox.size;
       itemBox = getRectBox(itemRenderBox);
     });
   }
@@ -457,7 +453,7 @@ class DraggableItem<T extends Object> extends StatefulWidget {
 
 class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   ///
-  late Rect parentBox;
+  Rect parentBox = Rect.zero;
 
   ///
   bool isInParentBox = true;
@@ -466,7 +462,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   double tempHeight = 0;
 
   ///
-  late bool isDragging;
+  bool isDragging = false;
 
   ///
   bool isInAnotherItem = false;
@@ -476,7 +472,6 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
     return Draggable<T>(
       data: widget.item,
       feedback: widget.widgetFromBuilder,
-      axis: null,
       onDragUpdate: onDragUpdate,
       childWhenDragging: getChildWhenDragging(),
       onDragEnd: onDragEnd,
@@ -611,23 +606,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
     this.tempHeight = tempHeight;
   }
 
-  ///
-  void setDefaultValues() {
-    ///
-    isInParentBox = true;
-
-    ///
-    tempHeight = 0;
-
-    ///
-    isDragging = false;
-
-    ///
-    isInAnotherItem = false;
-  }
 }
-
-///
 
 ///
 Rect getRectBox(RenderBox renderBox) {
