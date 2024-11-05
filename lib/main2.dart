@@ -192,8 +192,7 @@ class DockItem<T extends Object> extends StatefulWidget {
 }
 
 ///
-class _DockItemState<T extends Object> extends State<DockItem<T>>
-    with DraggedItemMixin {
+class _DockItemState<T extends Object> extends State<DockItem<T>> {
   ///
   late Widget widgetFromBuilder = widget.builder(widget.item);
 
@@ -201,7 +200,16 @@ class _DockItemState<T extends Object> extends State<DockItem<T>>
   late T item = widget.item;
 
   ///
+  late Rect parentBox;
+
+  ///
+  late bool isInParentBox;
+
+  ///
   late Size itemSize;
+
+  ///
+  late Rect itemBox;
 
   ///
   late double tempHeight;
@@ -211,6 +219,9 @@ class _DockItemState<T extends Object> extends State<DockItem<T>>
 
   ///
   late bool isDragging;
+
+  ///
+  late bool isInAnotherItem;
 
   ///
   late bool isOnLeave;
@@ -337,6 +348,27 @@ class _DockItemState<T extends Object> extends State<DockItem<T>>
       startOffset: details.offset,
       endOffset: itemBox.topLeft,
     );
+  }
+
+  ///
+  void onDragUpdate(DragUpdateDetails details) {
+    final isContainsParentBox = parentBox.contains(details.localPosition);
+    if (isInParentBox != isContainsParentBox) {
+      ///setState нужен а то не сужается место
+      setState(() {
+        isInParentBox = isContainsParentBox;
+      });
+    }
+
+    if (isInParentBox) {
+      final isContainsItemBox = !itemBox.contains(details.localPosition);
+      if (isInAnotherItem != isContainsItemBox) {
+        setState(() {
+          isInAnotherItem = isContainsItemBox;
+        });
+      }
+      // print('isInAnotherItem $isInAnotherItem');
+    }
   }
 
   ///
@@ -485,13 +517,10 @@ class _DockItemState<T extends Object> extends State<DockItem<T>>
   bool onWillAcceptWithDetails(DragTargetDetails details) {
     //todo срабатывает когда начинаешь тянуть , нужно избежать первый раз
 
-    if (!isDragging) {
       isFromLeft = getIsGoFromLeft(
         currentOffset: details.offset,
         itemBoxCenterLeft: itemBox.centerLeft,
       );
-      // print('isFromLeft $isFromLeft');
-    }
 
     return true;
   }
@@ -553,42 +582,5 @@ class _DockItemState<T extends Object> extends State<DockItem<T>>
 
     ///
     isFromLeft = null;
-  }
-}
-
-/// миксин для добавления обработки перетаскивания
-mixin DraggedItemMixin<T extends Object> on State<DockItem<T>> {
-  ///
-  late bool isInParentBox;
-
-  ///
-  late Rect parentBox;
-
-  ///
-  late Rect itemBox;
-
-  ///
-  late bool isInAnotherItem;
-
-  ///
-  void onDragUpdate(DragUpdateDetails details) {
-    final isContainsParentBox = parentBox.contains(details.localPosition);
-    if (isInParentBox != isContainsParentBox) {
-      ///setState нужен а то не сужается место
-      setState(() {
-        isInParentBox = isContainsParentBox;
-      });
-    }
-
-    if (isInParentBox) {
-      final isContainsItemBox = !itemBox.contains(details.localPosition);
-
-      if (isInAnotherItem != isContainsItemBox) {
-        setState(() {
-          isInAnotherItem = isContainsItemBox;
-        });
-      }
-      // print('isInAnotherItem $isInAnotherItem');
-    }
   }
 }
