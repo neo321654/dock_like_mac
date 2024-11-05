@@ -431,7 +431,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
 
     if(isDragEnd){
       print('build ${ widget.item} isDragging !!!isInParentBox');
-      return Text('dff');
+      return SizedBox(height: tempHeight,width: tempHeight,);
     }
 
     // print('build ${ widget.item}');
@@ -625,15 +625,6 @@ void showOverlayAnimation({
       return Stack(
         fit: StackFit.expand,
         children: [
-          Positioned(
-            top: end.dy,
-            left: end.dx,
-            child: Container(
-              height: 164,
-              width: 64,
-              // color: const Color(0xffDFD9DF),
-            ),
-          ),
           TweenAnimationBuilder(
             tween: Tween<Offset>(
               begin: begin,
