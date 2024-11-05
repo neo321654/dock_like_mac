@@ -100,69 +100,20 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       end: endOffset,
       context: context,
       child: widget.builder(itemToReplace),
-    );
+      onEnd: () {
 
-    setState(() {
-      int index = _items.indexOf(item);
-      _items.remove(itemToReplace);
-      _items.insert(index, itemToReplace);
-    });
-  }
-
-  ///
-  void showOverlayAnimation({
-    required Offset begin,
-    required Offset end,
-    required BuildContext context,
-    Widget? child,
-  }) {
-    OverlayEntry? overlayEntry;
-
-    void removeOverlayEntry() {
-      //todo не всегда удаляется если анимация не отыграла до конца а уже что-то поменялось
-      overlayEntry?.remove();
-      overlayEntry?.dispose();
-      overlayEntry = null;
-    }
-
-    overlayEntry = OverlayEntry(
-      builder: (BuildContext context) {
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            Positioned(
-              top: end.dy,
-              left: end.dx,
-              child: Container(
-                height: 64,
-                width: 64,
-                color: const Color(0xffDFD9DF),
-              ),
-            ),
-            TweenAnimationBuilder(
-              tween: Tween<Offset>(
-                begin: begin,
-                end: end,
-              ),
-              duration: const Duration(milliseconds: 300),
-              onEnd: removeOverlayEntry,
-              child: child ?? const SizedBox.shrink(),
-              builder: (context, offset, child) {
-                return Positioned(
-                  top: offset.dy,
-                  left: offset.dx,
-                  child: child!,
-                );
-              },
-            ),
-          ],
-        );
+        setState(() {
+          int index = _items.indexOf(item);
+          _items.remove(itemToReplace);
+          _items.insert(index, itemToReplace);
+        });
       },
     );
 
-    Overlay.of(context)
-        .insert(overlayEntry!); // Insert overlay entry into the overlay stack
+
   }
+
+
 }
 
 /// [Widget] building the [DockItem] contains [item] and [builder].
@@ -200,10 +151,10 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   late final T _item = widget.item;
 
   ///
-  Rect itemBox = Rect.zero;
+  Rect _itemBox = Rect.zero;
 
   ///
-  Rect parentBox = Rect.zero;
+  Rect _parentBox = Rect.zero;
 
   @override
   void initState() {
@@ -220,12 +171,12 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     return DraggableItem<T>(
       item: _item,
       widgetFromBuilder: _widgetFromBuilder,
-      itemBox: itemBox,
-      parentBox: parentBox,
+      itemBox: _itemBox,
+      parentBox: _parentBox,
       replaceItem: widget.replaceItem,
       child: DragTargetItem<T>(
         widgetFromBuilder: _widgetFromBuilder,
-        itemBox: itemBox,
+        itemBox: _itemBox,
         item: _item,
         replaceItem: widget.replaceItem,
       ),
@@ -237,8 +188,8 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     setState(() {
       RenderBox itemRenderBox = context.findRenderObject()! as RenderBox;
       RenderBox parent = itemRenderBox.parent! as RenderBox;
-      parentBox = getRectBox(parent);
-      itemBox = getRectBox(itemRenderBox);
+      _parentBox = getRectBox(parent);
+      _itemBox = getRectBox(itemRenderBox);
     });
   }
 }
@@ -462,6 +413,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
 
   @override
   void didUpdateWidget(covariant DraggableItem<T> oldWidget) {
+
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.itemBox != widget.itemBox) {
@@ -471,8 +423,16 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
 
   @override
   Widget build(BuildContext context) {
+
+    if(isDragging && !isInParentBox){
+      print('build ${ widget.item} isDragging !!!isInParentBox');
+      return Text('dff');
+    }
+
+    // print('build ${ widget.item}');
     return Draggable<T>(
       data: widget.item,
+      // rootOverlay: true,
       feedback: widget.widgetFromBuilder,
       onDragUpdate: onDragUpdate,
       childWhenDragging: getChildWhenDragging(),
@@ -516,8 +476,38 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   }
 
   ///
-  void onDragEnd(DraggableDetails details) {
-    isDragging = false;
+  void onDragEnd(DraggableDetails details) async{
+
+    // isDragging = false;
+
+   // setState(() {
+   //
+   // });
+
+    // Здесь вы можете добавить задержку перед выполнением следующего кода
+
+    // Вызываем метод для показа анимации возврата элемента в изначальное положение
+    // await Future.delayed(Duration(milliseconds: 2300)); // Задержка на 300 мс
+
+
+
+
+
+
+    // await Future.delayed(Duration(milliseconds: 2300)); // Задержка на 300 мс
+
+  }
+
+  ///
+  void onDraggableCanceled(velocity, offset) {
+    isInParentBox = false;
+    widget.replaceItem(
+        itemToReplace: widget.item,
+        item: widget.item,
+        startOffset: offset,
+        endOffset: widget.itemBox.topLeft,
+      );
+    setTempHeight(widget.itemBox.height);
   }
 
   ///
@@ -527,19 +517,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
     });
   }
 
-  ///
-  void onDraggableCanceled(velocity, offset) {
-    isInParentBox = true;
-    setTempHeight(widget.itemBox.height);
 
-    /// вызываю чтобы показать анимацию возврата элемента в изначальное положение
-    widget.replaceItem(
-      itemToReplace: widget.item,
-      item: widget.item,
-      startOffset: offset,
-      endOffset: widget.itemBox.topLeft,
-    );
-  }
 
   ///
   void onDragCompleted() {
@@ -582,8 +560,6 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
         },
       );
     } else {
-      print('!!!!isInParentBox');
-
       return TweenAnimationBuilder(
         tween: Tween<double>(
             begin: widget.itemBox.width, end: widget.itemBox.width),
@@ -619,4 +595,61 @@ Rect getRectBox(RenderBox renderBox) {
   Offset bottomRightGlobal = renderBox.localToGlobal(box.bottomRight);
   return Rect.fromLTRB(topLeftGlobal.dx, topLeftGlobal.dy, bottomRightGlobal.dx,
       bottomRightGlobal.dy);
+}
+
+///
+void showOverlayAnimation({
+  required Offset begin,
+  required Offset end,
+  required BuildContext context,
+  required  Function onEnd,
+  Widget? child,
+}) {
+  OverlayEntry? overlayEntry;
+
+  void removeOverlayEntry() {
+    overlayEntry?.remove();
+    overlayEntry?.dispose();
+    overlayEntry = null;
+
+    onEnd();
+  }
+
+  overlayEntry = OverlayEntry(
+    builder: (BuildContext context) {
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned(
+            top: end.dy,
+            left: end.dx,
+            child: Container(
+              height: 164,
+              width: 64,
+              // color: const Color(0xffDFD9DF),
+            ),
+          ),
+          TweenAnimationBuilder(
+            tween: Tween<Offset>(
+              begin: begin,
+              end: end,
+            ),
+            duration: const Duration(milliseconds: 1300),
+            onEnd: removeOverlayEntry,
+            child: child ?? const SizedBox.shrink(),
+            builder: (context, offset, child) {
+              return Positioned(
+                top: offset.dy,
+                left: offset.dx,
+                child: child!,
+              );
+            },
+          ),
+        ],
+      );
+    },
+  );
+
+  Overlay.of(context)
+      .insert(overlayEntry!); // Insert overlay entry into the overlay stack
 }
