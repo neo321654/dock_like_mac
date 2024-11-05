@@ -238,30 +238,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
     print('${item} didChangeDependencies');
   }
 
-  @override
-  void deactivate() {
-    super.deactivate();
-    print('${item} deactivate');
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    print('${item} dispose');
-  }
-
-  @override
-  void activate() {
-    super.activate();
-
-    print('${item} activate');
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    print(' ${item} debugFillProperties');
-  }
 
   @override
   void didUpdateWidget(covariant DockItem<T> oldWidget) {
@@ -271,7 +247,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   @override
   Widget build(BuildContext context) {
-    print('${item} build');
     return Draggable<T>(
       data: item,
       feedback: widgetFromBuilder,
@@ -512,6 +487,7 @@ class _DragTargetItemState<T extends Object> extends State<DragTargetItem<T>> {
     if (candidateData.isNotEmpty && candidateData.first.runtimeType == T) {
       return getWidgetInDragTarget();
     }
+
     /// отображение когда выходит нужный айтем
     if (isOnLeave) {
       return getWidgetInDragTargetOnLeave();
@@ -611,7 +587,7 @@ class _DragTargetItemState<T extends Object> extends State<DragTargetItem<T>> {
     required Offset currentOffset,
     required Offset itemBoxCenterLeft,
   }) {
-    print((currentOffset.dx - itemBoxCenterLeft.dx));
+    //todo нужно узнать если мы идём снузу, то изменить логику смещения
     return (currentOffset.dx - itemBoxCenterLeft.dx).isNegative;
   }
 }
