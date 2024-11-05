@@ -192,7 +192,8 @@ class DockItem<T extends Object> extends StatefulWidget {
 }
 
 ///
-class _DockItemState<T extends Object> extends State<DockItem<T>> {
+class _DockItemState<T extends Object> extends State<DockItem<T>>
+    with DraggedItemMixin {
   ///
   late Widget widgetFromBuilder = widget.builder(widget.item);
 
@@ -200,16 +201,7 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   late T item = widget.item;
 
   ///
-  late Rect parentBox;
-
-  ///
-  late bool isInParentBox;
-
-  ///
   late Size itemSize;
-
-  ///
-  late Rect itemBox;
 
   ///
   late double tempHeight;
@@ -219,9 +211,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
   ///
   late bool isDragging;
-
-  ///
-  late bool isInAnotherItem;
 
   ///
   late bool isOnLeave;
@@ -351,27 +340,6 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
   }
 
   ///
-  void onDragUpdate(DragUpdateDetails details) {
-    final isContainsParentBox = parentBox.contains(details.localPosition);
-    if (isInParentBox != isContainsParentBox) {
-      ///setState нужен а то не сужается место
-      setState(() {
-        isInParentBox = isContainsParentBox;
-      });
-    }
-
-    if (isInParentBox) {
-      final isContainsItemBox = !itemBox.contains(details.localPosition);
-      if (isInAnotherItem != isContainsItemBox) {
-        setState(() {
-          isInAnotherItem = isContainsItemBox;
-        });
-      }
-      // print('isInAnotherItem $isInAnotherItem');
-    }
-  }
-
-  ///
   Widget dragTargetBuilder(context, candidateData, rejectedData) {
     /// отображение когда входит нужный айтем
     if (candidateData.isNotEmpty && candidateData.first.runtimeType == T) {
@@ -393,19 +361,19 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
       duration: const Duration(milliseconds: 300),
       builder: (context, width, child) {
         return Container(
-            // color: Colors.red,
+            color: Colors.red,
             child: Row(
-          children: [
-            Padding(
-              // padding: EdgeInsets.only(left: width),
-              padding: EdgeInsets.only(
-                right: isFromLeft! ? width : 0,
-                left: !isFromLeft! ? width : 0,
-              ),
-              child: child,
-            ),
-          ],
-        ));
+              children: [
+                Padding(
+                  // padding: EdgeInsets.only(left: width),
+                  padding: EdgeInsets.only(
+                    right: isFromLeft! ? width : 0,
+                    left: !isFromLeft! ? width : 0,
+                  ),
+                  child: child,
+                ),
+              ],
+            ));
       },
       child: widgetFromBuilder,
     );
@@ -585,5 +553,42 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 
     ///
     isFromLeft = null;
+  }
+}
+
+/// миксин для добавления обработки перетаскивания
+mixin DraggedItemMixin<T extends Object> on State<DockItem<T>> {
+  ///
+  late bool isInParentBox;
+
+  ///
+  late Rect parentBox;
+
+  ///
+  late Rect itemBox;
+
+  ///
+  late bool isInAnotherItem;
+
+  ///
+  void onDragUpdate(DragUpdateDetails details) {
+    final isContainsParentBox = parentBox.contains(details.localPosition);
+    if (isInParentBox != isContainsParentBox) {
+      ///setState нужен а то не сужается место
+      setState(() {
+        isInParentBox = isContainsParentBox;
+      });
+    }
+
+    if (isInParentBox) {
+      final isContainsItemBox = !itemBox.contains(details.localPosition);
+
+      if (isInAnotherItem != isContainsItemBox) {
+        setState(() {
+          isInAnotherItem = isContainsItemBox;
+        });
+      }
+      // print('isInAnotherItem $isInAnotherItem');
+    }
   }
 }
