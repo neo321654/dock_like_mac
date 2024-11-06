@@ -243,6 +243,9 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   bool isDragCancel = false;
 
   ///
+  bool isDragging = false;
+
+  ///
   bool isInAnotherItem = false;
 
   @override
@@ -262,7 +265,6 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   Widget build(BuildContext context) {
     ///когда происходит отмета перетаскивания скрываем айтем
     if (isDragCancel&&!isInParentBox) {
-
       return TweenAnimationBuilder(
           tween: Tween<double>(
               begin: 0 , end: widget.itemBox.width),
@@ -280,12 +282,23 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       );
     }
 
-    if(isDragCancel){
+    ///отмена и мы в родителе
+    if(isDragCancel&&isInParentBox){
       return SizedBox(
         height: widget.itemBox.height,
         width: widget.itemBox.width,
       );
     }
+
+    ///нет отмены и мы в родителе
+    if(!isDragCancel&&isInParentBox&&isDragging){
+      return SizedBox(
+        height: widget.itemBox.height,
+        width: widget.itemBox.width,
+      );
+    }
+
+
 
     return Draggable<T>(
       data: widget.item,
@@ -332,19 +345,9 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   }
 
   ///
-  void onDragEnd(DraggableDetails details) async {
-    // isDragging = false;
+  void onDragEnd(DraggableDetails details)  {
+    isDragging = false;
 
-    // setState(() {
-    //
-    // });
-
-    // Здесь вы можете добавить задержку перед выполнением следующего кода
-
-    // Вызываем метод для показа анимации возврата элемента в изначальное положение
-    // await Future.delayed(Duration(milliseconds: 2300)); // Задержка на 300 мс
-
-    // await Future.delayed(Duration(milliseconds: 2300)); // Задержка на 300 мс
   }
 
   ///
@@ -364,7 +367,9 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   }
 
   ///
-  void onDragStarted() {}
+  void onDragStarted() {
+    isDragging = true;
+  }
 
   ///
   void onDragCompleted() {
