@@ -389,10 +389,20 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
 
     ///в родительском айтеме но не в другом айтеме и анимация  отыграла
     if (isInParentBox && !isInAnotherItem && tempHeight==0) {
-      return Container(
-        color: Colors.cyanAccent,
-        width: widget.itemBox.width,
-        height: widget.itemBox.width,
+      return TweenAnimationBuilder(
+        tween: Tween<double>(begin: 0, end: widget.itemBox.width),
+        // tween: Tween<double>(begin: itemSize.width, end: 0),
+        onEnd: () {
+          // tempHeight = 0;
+        },
+        duration: const Duration(milliseconds: 300),
+        builder: (context, width, child) {
+          return Container(
+            color: Colors.cyan,
+            width: width,
+            height: width,
+          );
+        },
       );
     }
     //todo нужно сделать состояние когда я в родителе но зашёл из-за пределов
