@@ -237,9 +237,6 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   bool isInParentBox = true;
 
   ///
-  double? tempHeight;
-
-  ///
   bool isDragCancel = false;
 
   ///
@@ -252,9 +249,9 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   void didUpdateWidget(covariant DraggableItem<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.itemBox != widget.itemBox) {
-      tempHeight = widget.itemBox.height;
-    }
+    // if (oldWidget.itemBox != widget.itemBox) {
+    //   tempHeight = widget.itemBox.height;
+    // }
 
     // if (oldWidget.isDragEnd != widget.itemBox) {
     isDragCancel = false;
@@ -263,28 +260,25 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
 
   @override
   Widget build(BuildContext context) {
-
     ///отмена и мы не в родителе
-    if (isDragCancel&&!isInParentBox) {
+    if (isDragCancel && !isInParentBox) {
       return TweenAnimationBuilder(
-          tween: Tween<double>(
-              begin: 0 , end: widget.itemBox.width),
+          tween: Tween<double>(begin: 0, end: widget.itemBox.width),
           // tween: Tween<double>(begin: itemSize.width, end: 0),
           onEnd: () {
             // setTempHeight(230);
           },
           duration: const Duration(milliseconds: 300),
           builder: (context, width, child) {
-          return SizedBox(
-            height: width,
-            width: width,
-          );
-        }
-      );
+            return SizedBox(
+              height: width,
+              width: width,
+            );
+          });
     }
 
     ///отмена и мы в родителе
-    if(isDragCancel&&isInParentBox){
+    if (isDragCancel && isInParentBox) {
       return SizedBox(
         height: widget.itemBox.height,
         width: widget.itemBox.width,
@@ -293,21 +287,18 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
 
     ///мы в родителе и нас тянут или не тянут
 
-      return Draggable<T>(
-        data: widget.item,
-        feedback: widget.widgetFromBuilder,
-        onDragUpdate: onDragUpdate,
-        childWhenDragging: getChildWhenDragging(),
-        onDragEnd: onDragEnd,
-        onDragStarted: onDragStarted,
-        onDraggableCanceled: onDraggableCanceled,
-        onDragCompleted: onDragCompleted,
-        dragAnchorStrategy: dragAnchorStrategy,
-        child: widget.child,
-      );
-
-
-
+    return Draggable<T>(
+      data: widget.item,
+      feedback: widget.widgetFromBuilder,
+      onDragUpdate: onDragUpdate,
+      childWhenDragging: getChildWhenDragging(),
+      onDragEnd: onDragEnd,
+      onDragStarted: onDragStarted,
+      onDraggableCanceled: onDraggableCanceled,
+      onDragCompleted: onDragCompleted,
+      dragAnchorStrategy: dragAnchorStrategy,
+      child: widget.child,
+    );
   }
 
   ///
@@ -320,6 +311,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       });
     }
 
+    ///если в родителе то устанавливаем внутри другого айтема или нет
     if (isInParentBox) {
       final isContainsItemBox = !widget.itemBox.contains(details.localPosition);
       if (isInAnotherItem != isContainsItemBox) {
@@ -327,7 +319,6 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
           isInAnotherItem = isContainsItemBox;
         });
       }
-      // print('isInAnotherItem $isInAnotherItem');
     }
   }
 
@@ -341,17 +332,14 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   }
 
   ///
-  void onDragEnd(DraggableDetails details)  {
+  void onDragEnd(DraggableDetails details) {
     isDragging = false;
-
   }
 
   ///
   void onDraggableCanceled(velocity, offset) {
     isDragCancel = true;
-    setState(() {
-
-    });
+    setState(() {});
 
     widget.replaceItem(
       itemToReplace: widget.item,
@@ -375,6 +363,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
 
   ///
   Widget getChildWhenDragging() {
+    ///в другом айтоме
     if (isInAnotherItem) {
       return TweenAnimationBuilder(
         tween: Tween<double>(begin: widget.itemBox.width, end: 0),
@@ -392,32 +381,34 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       );
     }
 
-    if (isInParentBox) {
-      return SizedBox(width: widget.itemBox.width,);
+    ///в родительском айтеме но не в другом айтеме
+    if (isInParentBox && !isInAnotherItem) {
+      return Container(
+        color: Colors.blue,
+        width: widget.itemBox.width,
+        height: widget.itemBox.width,
+      );
     }
+    //todo нужно сделать состояние когда я в родителе но зашёл из-за пределов
 
     ///если за переделами родителя
 
     return TweenAnimationBuilder(
-        tween: Tween<double>(
-            begin: widget.itemBox.width, end: 0),
-        // tween: Tween<double>(begin: itemSize.width, end: 0),
-        onEnd: () {
-          // setTempHeight(230);
-        },
-        duration: const Duration(milliseconds: 300),
-        builder: (context, width, child) {
-          return Container(
-            color: Colors.amberAccent,
-            width: width,
-            height: width,
-          );
-        },
-      );
-
+      tween: Tween<double>(begin: widget.itemBox.width, end: 0),
+      // tween: Tween<double>(begin: itemSize.width, end: 0),
+      onEnd: () {
+        // setTempHeight(230);
+      },
+      duration: const Duration(milliseconds: 300),
+      builder: (context, width, child) {
+        return Container(
+          color: Colors.amberAccent,
+          width: width,
+          height: width,
+        );
+      },
+    );
   }
-
-
 }
 
 ///
@@ -441,10 +432,10 @@ class DragTargetItem<T extends Object> extends StatefulWidget {
 
   ///
   final Function({
-  required T itemToReplace,
-  required T item,
-  required Offset startOffset,
-  required Offset endOffset,
+    required T itemToReplace,
+    required T item,
+    required Offset startOffset,
+    required Offset endOffset,
   }) replaceItem;
 
   @override
@@ -548,19 +539,19 @@ class _DragTargetItemState<T extends Object> extends State<DragTargetItem<T>> {
       duration: const Duration(milliseconds: 300),
       builder: (context, width, child) {
         return Container(
-          // color: Colors.blueAccent,
+            // color: Colors.blueAccent,
             child: Row(
-              children: [
-                Padding(
-                  // padding: EdgeInsets.only(left: width),
-                  padding: EdgeInsets.only(
-                    right: isFromLeft! ? width : 0,
-                    left: !isFromLeft! ? width : 0,
-                  ),
-                  child: child,
-                ),
-              ],
-            ));
+          children: [
+            Padding(
+              // padding: EdgeInsets.only(left: width),
+              padding: EdgeInsets.only(
+                right: isFromLeft! ? width : 0,
+                left: !isFromLeft! ? width : 0,
+              ),
+              child: child,
+            ),
+          ],
+        ));
       },
       child: widget.widgetFromBuilder,
     );
