@@ -385,6 +385,16 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
         height: widget.itemBox.width,
       );
     }
+
+
+    ///в родительском айтеме но не в другом айтеме и анимация  отыграла
+    if (isInParentBox && !isInAnotherItem && tempHeight==0) {
+      return Container(
+        color: Colors.cyanAccent,
+        width: widget.itemBox.width,
+        height: widget.itemBox.width,
+      );
+    }
     //todo нужно сделать состояние когда я в родителе но зашёл из-за пределов
 
     if(isInParentBox && !isInAnotherItem){
