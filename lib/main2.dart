@@ -263,7 +263,8 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
 
   @override
   Widget build(BuildContext context) {
-    ///когда происходит отмета перетаскивания скрываем айтем
+
+    ///отмена и мы не в родителе
     if (isDragCancel&&!isInParentBox) {
       return TweenAnimationBuilder(
           tween: Tween<double>(
@@ -290,28 +291,23 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       );
     }
 
-    ///нет отмены и мы в родителе
-    if(!isDragCancel&&isInParentBox&&isDragging){
-      return SizedBox(
-        height: widget.itemBox.height,
-        width: widget.itemBox.width,
+    ///мы в родителе и нас тянут или не тянут
+
+      return Draggable<T>(
+        data: widget.item,
+        feedback: widget.widgetFromBuilder,
+        onDragUpdate: onDragUpdate,
+        childWhenDragging: getChildWhenDragging(),
+        onDragEnd: onDragEnd,
+        onDragStarted: onDragStarted,
+        onDraggableCanceled: onDraggableCanceled,
+        onDragCompleted: onDragCompleted,
+        dragAnchorStrategy: dragAnchorStrategy,
+        child: widget.child,
       );
-    }
 
 
 
-    return Draggable<T>(
-      data: widget.item,
-      feedback: widget.widgetFromBuilder,
-      onDragUpdate: onDragUpdate,
-      childWhenDragging: getChildWhenDragging(),
-      onDragEnd: onDragEnd,
-      onDragStarted: onDragStarted,
-      onDraggableCanceled: onDraggableCanceled,
-      onDragCompleted: onDragCompleted,
-      dragAnchorStrategy: dragAnchorStrategy,
-      child: widget.child,
-    );
   }
 
   ///
