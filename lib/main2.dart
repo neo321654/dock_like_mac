@@ -240,10 +240,10 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   bool isDragCancel = false;
 
   ///
-  bool isDragging = false;
+  bool isInAnotherItem = false;
 
   ///
-  bool isInAnotherItem = false;
+  double tempHeight = 33;
 
   @override
   void didUpdateWidget(covariant DraggableItem<T> oldWidget) {
@@ -296,7 +296,6 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       onDragStarted: onDragStarted,
       onDraggableCanceled: onDraggableCanceled,
       onDragCompleted: onDragCompleted,
-      dragAnchorStrategy: dragAnchorStrategy,
       child: widget.child,
     );
   }
@@ -304,6 +303,9 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   ///
   void onDragUpdate(DragUpdateDetails details) {
     final isContainsParentBox = parentBox.contains(details.localPosition);
+
+
+
     if (isInParentBox != isContainsParentBox) {
       ///setState нужен а то не сужается место
       setState(() {
@@ -320,20 +322,15 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
         });
       }
     }
+
+
+
+
   }
 
-  ///
-  Offset dragAnchorStrategy(
-      Draggable<Object> draggable, BuildContext context, Offset position) {
-    final RenderBox renderObject = context.findRenderObject()! as RenderBox;
-
-    /// возвращаю обычный [childDragAnchorStrategy]
-    return renderObject.globalToLocal(position);
-  }
 
   ///
   void onDragEnd(DraggableDetails details) {
-    isDragging = false;
   }
 
   ///
@@ -352,7 +349,6 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
 
   ///
   void onDragStarted() {
-    isDragging = true;
   }
 
   ///
@@ -368,7 +364,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       return TweenAnimationBuilder(
         tween: Tween<double>(begin: widget.itemBox.width, end: 0),
         onEnd: () {
-          // setTempHeight(widget.itemBox.width);
+          tempHeight = 0;
         },
         duration: const Duration(milliseconds: 300),
         builder: (context, width, child) {
@@ -381,8 +377,8 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       );
     }
 
-    ///в родительском айтеме но не в другом айтеме
-    if (isInParentBox && !isInAnotherItem) {
+    ///в родительском айтеме но не в другом айтеме и анимация не отыграла
+    if (isInParentBox && !isInAnotherItem && tempHeight!=0) {
       return Container(
         color: Colors.blue,
         width: widget.itemBox.width,
@@ -391,13 +387,17 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
     }
     //todo нужно сделать состояние когда я в родителе но зашёл из-за пределов
 
+    if(isInParentBox && !isInAnotherItem){
+
+    }
+
     ///если за переделами родителя
 
     return TweenAnimationBuilder(
       tween: Tween<double>(begin: widget.itemBox.width, end: 0),
       // tween: Tween<double>(begin: itemSize.width, end: 0),
       onEnd: () {
-        // setTempHeight(230);
+        tempHeight = 0;
       },
       duration: const Duration(milliseconds: 300),
       builder: (context, width, child) {
