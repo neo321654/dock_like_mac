@@ -101,7 +101,6 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       context: context,
       child: widget.builder(itemToReplace),
       onEnd: () {
-
         setState(() {
           int index = _items.indexOf(item);
           _items.remove(itemToReplace);
@@ -109,11 +108,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
         });
       },
     );
-
-
   }
-
-
 }
 
 /// [Widget] building the [DockItem] contains [item] and [builder].
@@ -195,6 +190,233 @@ class _DockItemState<T extends Object> extends State<DockItem<T>> {
 }
 
 ///
+class DraggableItem<T extends Object> extends StatefulWidget {
+  const DraggableItem({
+    required this.item,
+    required this.child,
+    required this.itemBox,
+    required this.parentBox,
+    required this.widgetFromBuilder,
+    required this.replaceItem,
+    super.key,
+  });
+
+  ///
+  final T item;
+
+  ///
+  final Widget child;
+
+  ///
+  final Widget widgetFromBuilder;
+
+  ///
+  final Rect itemBox;
+
+  ///
+  final Rect parentBox;
+
+  ///
+  final Function({
+    required T itemToReplace,
+    required T item,
+    required Offset startOffset,
+    required Offset endOffset,
+  }) replaceItem;
+
+  @override
+  State<DraggableItem<T>> createState() => _DraggableItemState<T>();
+}
+
+///
+class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
+  ///
+  late Rect parentBox = widget.parentBox;
+
+  ///
+  bool isInParentBox = true;
+
+  ///
+  double? tempHeight;
+
+  ///
+  bool isDragCancel = false;
+
+  ///
+  bool isInAnotherItem = false;
+
+  @override
+  void didUpdateWidget(covariant DraggableItem<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.itemBox != widget.itemBox) {
+      tempHeight = widget.itemBox.height;
+    }
+
+    // if (oldWidget.isDragEnd != widget.itemBox) {
+    isDragCancel = false;
+    // }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ///когда происходит отмета перетаскивания скрываем айтем
+    if (isDragCancel) {
+      print('build ${widget.item} isDragging !!!isInParentBox');
+      return SizedBox(
+        height: widget.itemBox.height,
+        width: widget.itemBox.width,
+      );
+    }
+
+    // print('build ${ widget.item}');
+    return Draggable<T>(
+      data: widget.item,
+      // rootOverlay: true,
+      feedback: widget.widgetFromBuilder,
+      onDragUpdate: onDragUpdate,
+      childWhenDragging: getChildWhenDragging(),
+      onDragEnd: onDragEnd,
+      onDragStarted: onDragStarted,
+      onDraggableCanceled: onDraggableCanceled,
+      onDragCompleted: onDragCompleted,
+      dragAnchorStrategy: dragAnchorStrategy,
+      child: widget.child,
+    );
+  }
+
+  ///
+  void onDragUpdate(DragUpdateDetails details) {
+    final isContainsParentBox = parentBox.contains(details.localPosition);
+    if (isInParentBox != isContainsParentBox) {
+      ///setState нужен а то не сужается место
+      setState(() {
+        isInParentBox = isContainsParentBox;
+      });
+    }
+
+    if (isInParentBox) {
+      final isContainsItemBox = !widget.itemBox.contains(details.localPosition);
+      if (isInAnotherItem != isContainsItemBox) {
+        setState(() {
+          isInAnotherItem = isContainsItemBox;
+        });
+      }
+      // print('isInAnotherItem $isInAnotherItem');
+    }
+  }
+
+  ///
+  Offset dragAnchorStrategy(
+      Draggable<Object> draggable, BuildContext context, Offset position) {
+    final RenderBox renderObject = context.findRenderObject()! as RenderBox;
+
+    /// возвращаю обычный [childDragAnchorStrategy]
+    return renderObject.globalToLocal(position);
+  }
+
+  ///
+  void onDragEnd(DraggableDetails details) async {
+    // isDragging = false;
+
+    // setState(() {
+    //
+    // });
+
+    // Здесь вы можете добавить задержку перед выполнением следующего кода
+
+    // Вызываем метод для показа анимации возврата элемента в изначальное положение
+    // await Future.delayed(Duration(milliseconds: 2300)); // Задержка на 300 мс
+
+    // await Future.delayed(Duration(milliseconds: 2300)); // Задержка на 300 мс
+  }
+
+  ///
+  void onDraggableCanceled(velocity, offset) {
+    isDragCancel = true;
+
+    widget.replaceItem(
+      itemToReplace: widget.item,
+      item: widget.item,
+      startOffset: offset,
+      endOffset: widget.itemBox.topLeft,
+    );
+    setTempHeight(widget.itemBox.height);
+  }
+
+  ///
+  void onDragStarted() {}
+
+  ///
+  void onDragCompleted() {
+    isInParentBox = true;
+    setTempHeight(widget.itemBox.height);
+  }
+
+  ///
+  Widget getChildWhenDragging() {
+    if (isInAnotherItem) {
+      return TweenAnimationBuilder(
+        tween: Tween<double>(begin: tempHeight, end: 0),
+        onEnd: () {
+          setTempHeight(widget.itemBox.width);
+        },
+        duration: const Duration(milliseconds: 300),
+        builder: (context, width, child) {
+          return Container(
+            color: Colors.greenAccent,
+            width: width,
+            height: width,
+          );
+        },
+      );
+    }
+
+    if (isInParentBox) {
+      return TweenAnimationBuilder(
+        tween: Tween<double>(begin: widget.itemBox.width, end: tempHeight),
+        onEnd: () {
+          setTempHeight(widget.itemBox.width);
+        },
+        duration: const Duration(milliseconds: 300),
+        builder: (context, width, child) {
+          return Container(
+            color: Colors.indigo,
+            width: width,
+            height: width,
+          );
+        },
+      );
+    } else {
+      return TweenAnimationBuilder(
+        tween: Tween<double>(
+            begin: widget.itemBox.width, end: widget.itemBox.width),
+        // tween: Tween<double>(begin: itemSize.width, end: 0),
+        onEnd: () {
+          setTempHeight(230);
+        },
+        duration: const Duration(milliseconds: 300),
+        builder: (context, width, child) {
+          return Container(
+            color: Colors.amberAccent,
+            width: width,
+            height: width,
+          );
+        },
+      );
+    }
+  }
+
+  ///
+  void setTempHeight(double tempHeight) {
+    print('tempHeight $tempHeight');
+    setState(() {
+      this.tempHeight = tempHeight;
+    });
+  }
+}
+
+///
 class DragTargetItem<T extends Object> extends StatefulWidget {
   const DragTargetItem({
     required this.widgetFromBuilder,
@@ -215,10 +437,10 @@ class DragTargetItem<T extends Object> extends StatefulWidget {
 
   ///
   final Function({
-    required T itemToReplace,
-    required T item,
-    required Offset startOffset,
-    required Offset endOffset,
+  required T itemToReplace,
+  required T item,
+  required Offset startOffset,
+  required Offset endOffset,
   }) replaceItem;
 
   @override
@@ -322,19 +544,19 @@ class _DragTargetItemState<T extends Object> extends State<DragTargetItem<T>> {
       duration: const Duration(milliseconds: 300),
       builder: (context, width, child) {
         return Container(
-            // color: Colors.blueAccent,
+          // color: Colors.blueAccent,
             child: Row(
-          children: [
-            Padding(
-              // padding: EdgeInsets.only(left: width),
-              padding: EdgeInsets.only(
-                right: isFromLeft! ? width : 0,
-                left: !isFromLeft! ? width : 0,
-              ),
-              child: child,
-            ),
-          ],
-        ));
+              children: [
+                Padding(
+                  // padding: EdgeInsets.only(left: width),
+                  padding: EdgeInsets.only(
+                    right: isFromLeft! ? width : 0,
+                    left: !isFromLeft! ? width : 0,
+                  ),
+                  child: child,
+                ),
+              ],
+            ));
       },
       child: widget.widgetFromBuilder,
     );
@@ -356,244 +578,6 @@ class _DragTargetItemState<T extends Object> extends State<DragTargetItem<T>> {
 }
 
 ///
-class DraggableItem<T extends Object> extends StatefulWidget {
-  const DraggableItem({
-    required this.item,
-    required this.child,
-    required this.itemBox,
-    required this.parentBox,
-    required this.widgetFromBuilder,
-    required this.replaceItem,
-    super.key,
-  });
-
-  ///
-  final T item;
-
-  ///
-  final Widget child;
-
-  ///
-  final Widget widgetFromBuilder;
-
-  ///
-  final Rect itemBox;
-
-  ///
-  final Rect parentBox;
-
-  ///
-  final Function({
-    required T itemToReplace,
-    required T item,
-    required Offset startOffset,
-    required Offset endOffset,
-  }) replaceItem;
-
-  @override
-  State<DraggableItem<T>> createState() => _DraggableItemState<T>();
-}
-
-///
-class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
-  ///
-  late Rect parentBox = widget.parentBox;
-
-  ///
-  bool isInParentBox = true;
-
-  ///
-  double? tempHeight;
-
-  ///
-  bool isDragEnd = false;
-
-  ///
-  bool isInAnotherItem = false;
-
-  @override
-  void didUpdateWidget(covariant DraggableItem<T> oldWidget) {
-
-    super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.itemBox != widget.itemBox) {
-      tempHeight = widget.itemBox.height;
-    }
-
-    // if (oldWidget.isDragEnd != widget.itemBox) {
-      isDragEnd = false;
-    // }
-
-  }
-
-  @override
-  Widget build(BuildContext context) {
-
-    if(isDragEnd){
-      print('build ${ widget.item} isDragging !!!isInParentBox');
-      return SizedBox(height: tempHeight,width: tempHeight,);
-    }
-
-    // print('build ${ widget.item}');
-    return Draggable<T>(
-      data: widget.item,
-      // rootOverlay: true,
-      feedback: widget.widgetFromBuilder,
-      onDragUpdate: onDragUpdate,
-      childWhenDragging: getChildWhenDragging(),
-      onDragEnd: onDragEnd,
-      onDragStarted: onDragStarted,
-      onDraggableCanceled: onDraggableCanceled,
-      onDragCompleted: onDragCompleted,
-      dragAnchorStrategy: dragAnchorStrategy,
-      child: widget.child,
-    );
-  }
-
-  ///
-  void onDragUpdate(DragUpdateDetails details) {
-    final isContainsParentBox = parentBox.contains(details.localPosition);
-    if (isInParentBox != isContainsParentBox) {
-      ///setState нужен а то не сужается место
-      setState(() {
-        isInParentBox = isContainsParentBox;
-      });
-    }
-
-    if (isInParentBox) {
-      final isContainsItemBox = !widget.itemBox.contains(details.localPosition);
-      if (isInAnotherItem != isContainsItemBox) {
-        setState(() {
-          isInAnotherItem = isContainsItemBox;
-        });
-      }
-      // print('isInAnotherItem $isInAnotherItem');
-    }
-  }
-
-  ///
-  Offset dragAnchorStrategy(
-      Draggable<Object> draggable, BuildContext context, Offset position) {
-    final RenderBox renderObject = context.findRenderObject()! as RenderBox;
-
-    /// возвращаю обычный [childDragAnchorStrategy]
-    return renderObject.globalToLocal(position);
-  }
-
-  ///
-  void onDragEnd(DraggableDetails details) async{
-
-    // isDragging = false;
-
-   // setState(() {
-   //
-   // });
-
-    // Здесь вы можете добавить задержку перед выполнением следующего кода
-
-    // Вызываем метод для показа анимации возврата элемента в изначальное положение
-    // await Future.delayed(Duration(milliseconds: 2300)); // Задержка на 300 мс
-
-
-
-
-
-
-    // await Future.delayed(Duration(milliseconds: 2300)); // Задержка на 300 мс
-
-  }
-
-  ///
-  void onDraggableCanceled(velocity, offset) {
-
-    isDragEnd = true;
-
-    widget.replaceItem(
-        itemToReplace: widget.item,
-        item: widget.item,
-        startOffset: offset,
-        endOffset: widget.itemBox.topLeft,
-      );
-    setTempHeight(widget.itemBox.height);
-  }
-
-  ///
-  void onDragStarted() {
-
-  }
-
-
-
-  ///
-  void onDragCompleted() {
-    isInParentBox = true;
-    setTempHeight(widget.itemBox.height);
-  }
-
-  ///
-  Widget getChildWhenDragging() {
-    if (isInAnotherItem) {
-      return TweenAnimationBuilder(
-        tween: Tween<double>(begin: tempHeight, end: 0),
-        onEnd: () {
-          setTempHeight(widget.itemBox.width);
-        },
-        duration: const Duration(milliseconds: 300),
-        builder: (context, width, child) {
-          return Container(
-            color: Colors.greenAccent,
-            width: width,
-            height: width,
-          );
-        },
-      );
-    }
-
-    if (isInParentBox) {
-      return TweenAnimationBuilder(
-        tween: Tween<double>(begin: widget.itemBox.width, end: tempHeight),
-        onEnd: () {
-          setTempHeight(widget.itemBox.width);
-        },
-        duration: const Duration(milliseconds: 300),
-        builder: (context, width, child) {
-          return Container(
-            color: Colors.indigo,
-            width: width,
-            height: width,
-          );
-        },
-      );
-    } else {
-      return TweenAnimationBuilder(
-        tween: Tween<double>(
-            begin: widget.itemBox.width, end: widget.itemBox.width),
-        // tween: Tween<double>(begin: itemSize.width, end: 0),
-        onEnd: () {
-          setTempHeight(230);
-        },
-        duration: const Duration(milliseconds: 300),
-        builder: (context, width, child) {
-          return Container(
-            color: Colors.amberAccent,
-            width: width,
-            height: width,
-          );
-        },
-      );
-    }
-  }
-
-  ///
-  void setTempHeight(double tempHeight) {
-    print('tempHeight $tempHeight');
-    setState(() {
-      this.tempHeight = tempHeight;
-    });
-  }
-}
-
-///
 Rect getRectBox(RenderBox renderBox) {
   Rect box = renderBox.paintBounds;
   Offset topLeftGlobal = renderBox.localToGlobal(box.topLeft);
@@ -607,7 +591,7 @@ void showOverlayAnimation({
   required Offset begin,
   required Offset end,
   required BuildContext context,
-  required  Function onEnd,
+  required Function onEnd,
   Widget? child,
 }) {
   OverlayEntry? overlayEntry;
