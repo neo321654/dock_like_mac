@@ -261,7 +261,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   @override
   Widget build(BuildContext context) {
     ///когда происходит отмета перетаскивания скрываем айтем
-    if (isDragCancel) {
+    if (isDragCancel&&!isInParentBox) {
 
       return TweenAnimationBuilder(
           tween: Tween<double>(
@@ -277,6 +277,13 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
             width: width,
           );
         }
+      );
+    }
+
+    if(isDragCancel){
+      return SizedBox(
+        height: widget.itemBox.height,
+        width: widget.itemBox.width,
       );
     }
 
