@@ -332,6 +332,9 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   ///
   void onDraggableCanceled(velocity, offset) {
     isDragCancel = true;
+    setState(() {
+
+    });
 
     widget.replaceItem(
       itemToReplace: widget.item,
@@ -339,7 +342,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       startOffset: offset,
       endOffset: widget.itemBox.topLeft,
     );
-    setTempHeight(widget.itemBox.height);
+    // setTempHeight(widget.itemBox.height);
   }
 
   ///
@@ -348,16 +351,16 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   ///
   void onDragCompleted() {
     isInParentBox = true;
-    setTempHeight(widget.itemBox.height);
+    // setTempHeight(widget.itemBox.height);
   }
 
   ///
   Widget getChildWhenDragging() {
     if (isInAnotherItem) {
       return TweenAnimationBuilder(
-        tween: Tween<double>(begin: tempHeight, end: 0),
+        tween: Tween<double>(begin: widget.itemBox.width, end: 0),
         onEnd: () {
-          setTempHeight(widget.itemBox.width);
+          // setTempHeight(widget.itemBox.width);
         },
         duration: const Duration(milliseconds: 300),
         builder: (context, width, child) {
@@ -379,7 +382,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
             begin: widget.itemBox.width, end: 0),
         // tween: Tween<double>(begin: itemSize.width, end: 0),
         onEnd: () {
-          setTempHeight(230);
+          // setTempHeight(230);
         },
         duration: const Duration(milliseconds: 300),
         builder: (context, width, child) {
@@ -394,12 +397,12 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   }
 
   ///
-  void setTempHeight(double tempHeight) {
-    print('tempHeight $tempHeight');
-    setState(() {
-      this.tempHeight = tempHeight;
-    });
-  }
+  // void setTempHeight(double tempHeight) {
+  //   print('tempHeight $tempHeight');
+  //   setState(() {
+  //     this.tempHeight = tempHeight;
+  //   });
+  // }
 }
 
 ///
