@@ -393,7 +393,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
         tween: Tween<double>(begin: 0, end: widget.itemBox.width),
         // tween: Tween<double>(begin: itemSize.width, end: 0),
         onEnd: () {
-          // tempHeight = 0;
+           tempHeight = 33;
         },
         duration: const Duration(milliseconds: 300),
         builder: (context, width, child) {
@@ -407,6 +407,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
     }
     //todo нужно сделать состояние когда я в родителе но зашёл из-за пределов
 
+    //todo наверняка нужно будет передавать состояние вниз чтобы избежать одновременных стостояний и анимаций
     if(isInParentBox && !isInAnotherItem){
 
     }
