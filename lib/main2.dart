@@ -269,10 +269,8 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       );
     }
 
-    // print('build ${ widget.item}');
     return Draggable<T>(
       data: widget.item,
-      // rootOverlay: true,
       feedback: widget.widgetFromBuilder,
       onDragUpdate: onDragUpdate,
       childWhenDragging: getChildWhenDragging(),
@@ -373,24 +371,12 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
     }
 
     if (isInParentBox) {
-      return TweenAnimationBuilder(
-        tween: Tween<double>(begin: widget.itemBox.width, end: tempHeight),
-        onEnd: () {
-          setTempHeight(widget.itemBox.width);
-        },
-        duration: const Duration(milliseconds: 300),
-        builder: (context, width, child) {
-          return Container(
-            color: Colors.indigo,
-            width: width,
-            height: width,
-          );
-        },
-      );
-    } else {
-      return TweenAnimationBuilder(
+      return SizedBox(width: widget.itemBox.width,);
+    }
+
+    return TweenAnimationBuilder(
         tween: Tween<double>(
-            begin: widget.itemBox.width, end: widget.itemBox.width),
+            begin: widget.itemBox.width, end: 0),
         // tween: Tween<double>(begin: itemSize.width, end: 0),
         onEnd: () {
           setTempHeight(230);
@@ -404,7 +390,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
           );
         },
       );
-    }
+
   }
 
   ///
