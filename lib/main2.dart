@@ -262,10 +262,21 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   Widget build(BuildContext context) {
     ///когда происходит отмета перетаскивания скрываем айтем
     if (isDragCancel) {
-      print('build ${widget.item} isDragging !!!isInParentBox');
-      return SizedBox(
-        height: widget.itemBox.height,
-        width: widget.itemBox.width,
+
+      return TweenAnimationBuilder(
+          tween: Tween<double>(
+              begin: 0 , end: widget.itemBox.width),
+          // tween: Tween<double>(begin: itemSize.width, end: 0),
+          onEnd: () {
+            // setTempHeight(230);
+          },
+          duration: const Duration(milliseconds: 300),
+          builder: (context, width, child) {
+          return SizedBox(
+            height: width,
+            width: width,
+          );
+        }
       );
     }
 
@@ -377,6 +388,8 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       return SizedBox(width: widget.itemBox.width,);
     }
 
+    ///если за переделами родителя
+
     return TweenAnimationBuilder(
         tween: Tween<double>(
             begin: widget.itemBox.width, end: 0),
@@ -396,13 +409,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
 
   }
 
-  ///
-  // void setTempHeight(double tempHeight) {
-  //   print('tempHeight $tempHeight');
-  //   setState(() {
-  //     this.tempHeight = tempHeight;
-  //   });
-  // }
+
 }
 
 ///
