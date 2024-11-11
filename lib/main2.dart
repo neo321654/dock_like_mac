@@ -237,7 +237,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   bool isInParentBox = true;
 
   ///
-  bool isFromOutParent = false;
+  bool isFromOutParentOrItem = false;
 
   ///
   bool isDragCancel = false;
@@ -263,7 +263,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
     isDragCancel = false;
     isInAnotherItem = false;
     isInParentBox = true;
-    isFromOutParent = false;
+    isFromOutParentOrItem = false;
     // }
   }
 
@@ -367,7 +367,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       return TweenAnimationBuilder(
         tween: Tween<double>(begin: widget.itemBox.width, end: 0),
         onEnd: () {
-          // tempHeight = 0;
+          isFromOutParentOrItem = true;
         },
         duration: const Duration(milliseconds: 300),
         builder: (context, width, child) {
@@ -381,7 +381,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
     }
 
     ///в родительском айтеме, просто пустой контайнер с размерами, пока голубой
-    if (isInParentBox && !isInAnotherItem && !isFromOutParent ) {
+    if (isInParentBox && !isInAnotherItem && !isFromOutParentOrItem ) {
       return Container(
         color: Colors.blue,
         width: widget.itemBox.width,
@@ -390,7 +390,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
     }
 
     ///в родительском айтеме, просто пустой контайнер с размерами, пока голубой
-    if (isInParentBox && !isInAnotherItem &&  isFromOutParent) {
+    if (isInParentBox && !isInAnotherItem &&  isFromOutParentOrItem) {
       return Container(
         color: Colors.red,
         width: widget.itemBox.width,
@@ -399,11 +399,11 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
     }
 
     ///не в родительском, сужаем с анимацией
-    if (!isInParentBox &&  !isFromOutParent) {
+    if (!isInParentBox &&  !isFromOutParentOrItem) {
       return TweenAnimationBuilder(
         tween: Tween<double>(begin: widget.itemBox.width, end: 0),
         onEnd: () {
-          isFromOutParent = true;
+          isFromOutParentOrItem = true;
         },
         duration: const Duration(milliseconds: 300),
         builder: (context, width, child) {
