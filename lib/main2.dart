@@ -334,7 +334,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   ///
   void onDraggableCanceled(velocity, offset) {
     isDragCancel = true;
-   // setState(() {});
+   setState(() {});
 
     widget.replaceItem(
       itemToReplace: widget.item,
