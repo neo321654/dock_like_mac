@@ -377,6 +377,14 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
     isInParentBox = true;
     isFromOutParentOrItem = false;
     isOnDragCompleted = true;
+
+    // widget.replaceItem(
+    //   itemToReplace: widget.item,
+    //   item: widget.item,
+    //   startOffset: Offset.zero,
+    //   endOffset: widget.itemBox.topLeft,
+    // );
+
     // });
   }
 
