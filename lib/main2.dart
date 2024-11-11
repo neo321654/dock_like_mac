@@ -243,7 +243,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   bool isInAnotherItem = false;
 
   ///
-  double tempHeight = 33;
+  //double tempHeight = 33;
 
   ///
   Offset currentPosition = Offset.zero;
@@ -258,6 +258,8 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
 
     // if (oldWidget.isDragEnd != widget.itemBox) {
     isDragCancel = false;
+    isInAnotherItem = false;
+    isInParentBox = true;
     // }
   }
 
@@ -289,7 +291,6 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
     }
 
     ///мы в родителе и нас тянут или не тянут
-
     return Draggable<T>(
       data: widget.item,
       feedback:widget.widgetFromBuilder,
@@ -299,7 +300,8 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       onDragStarted: onDragStarted,
       onDraggableCanceled: onDraggableCanceled,
       onDragCompleted: onDragCompleted,
-      child: widget.child,
+      // child: widget.child,
+      child: widget.widgetFromBuilder,
     );
   }
 
@@ -332,7 +334,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   ///
   void onDraggableCanceled(velocity, offset) {
     isDragCancel = true;
-    setState(() {});
+   // setState(() {});
 
     widget.replaceItem(
       itemToReplace: widget.item,
@@ -354,12 +356,14 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
 
   ///
   Widget getChildWhenDragging() {
-    ///в другом айтоме
-    if (isInAnotherItem) {
+
+    ///в родительском айтеме и в другом айтоме
+    if (isInParentBox && isInAnotherItem) {
+
       return TweenAnimationBuilder(
         tween: Tween<double>(begin: widget.itemBox.width, end: 0),
         onEnd: () {
-          tempHeight = 0;
+          // tempHeight = 0;
         },
         duration: const Duration(milliseconds: 300),
         builder: (context, width, child) {
@@ -373,7 +377,8 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
     }
 
     ///в родительском айтеме но не в другом айтеме и анимация не отыграла
-    if (isInParentBox && !isInAnotherItem && tempHeight != 0) {
+    if (isInParentBox && !isInAnotherItem ) {
+
       return Container(
         color: Colors.blue,
         width: widget.itemBox.width,
@@ -381,30 +386,32 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       );
     }
 
-    ///в родительском айтеме но не в другом айтеме и анимация  отыграла
-    if (isInParentBox && !isInAnotherItem && tempHeight == 0) {
+    ///не в родительском
+    if (!isInParentBox ) {
+
       return TweenAnimationBuilder(
-        tween: Tween<double>(begin: 0, end: widget.itemBox.width),
-        // tween: Tween<double>(begin: itemSize.width, end: 0),
+        tween: Tween<double>(begin: widget.itemBox.width, end: 0),
         onEnd: () {
-          tempHeight = 33;
+          // tempHeight = 0;
         },
         duration: const Duration(milliseconds: 300),
         builder: (context, width, child) {
           return Container(
-            color: Colors.black87,
+            color: Colors.greenAccent,
             width: width,
             height: width,
           );
         },
       );
     }
+
+
     //todo проблемма двойных состояний в точке входа нужно чтобы границы айтема использовались для реакций
 
     //todo нужно сделать состояние когда я в родителе но зашёл из-за пределов
 
     //todo наверняка нужно будет передавать состояние вниз чтобы избежать одновременных стостояний и анимаций
-    if (isInParentBox && !isInAnotherItem) {}
+    // if (isInParentBox && !isInAnotherItem) {}
 
     ///если за переделами родителя
 
@@ -412,7 +419,6 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       tween: Tween<double>(begin: widget.itemBox.width, end: 0),
       // tween: Tween<double>(begin: itemSize.width, end: 0),
       onEnd: () {
-        tempHeight = 0;
       },
       duration: const Duration(milliseconds: 300),
       builder: (context, width, child) {
@@ -424,6 +430,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       },
     );
   }
+
 }
 
 ///
@@ -604,6 +611,7 @@ void showOverlayAnimation({
   required Function onEnd,
   Widget? child,
 }) {
+
   OverlayEntry? overlayEntry;
 
   void removeOverlayEntry() {
