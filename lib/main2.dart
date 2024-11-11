@@ -237,6 +237,9 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   bool isInParentBox = true;
 
   ///
+  bool isFromOutParent = false;
+
+  ///
   bool isDragCancel = false;
 
   ///
@@ -260,12 +263,13 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
     isDragCancel = false;
     isInAnotherItem = false;
     isInParentBox = true;
+    isFromOutParent = false;
     // }
   }
 
   @override
   Widget build(BuildContext context) {
-    ///отмена и мы не в родителе
+    ///отмена и мы не в родителе , расширяем с анимацией
     if (isDragCancel && !isInParentBox) {
       return TweenAnimationBuilder(
           tween: Tween<double>(begin: 0, end: widget.itemBox.width),
@@ -282,7 +286,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
           });
     }
 
-    ///отмена и мы в родителе
+    ///отмена и мы в родителе , показываем пустоту но с размерами
     if (isDragCancel && isInParentBox) {
       return SizedBox(
         height: widget.itemBox.height,
@@ -357,7 +361,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   ///
   Widget getChildWhenDragging() {
 
-    ///в родительском айтеме и в другом айтоме
+    ///в родительском айтеме и в другом айтоме, сужаем с анимацией
     if (isInParentBox && isInAnotherItem) {
 
       return TweenAnimationBuilder(
@@ -376,9 +380,8 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       );
     }
 
-    ///в родительском айтеме но не в другом айтеме и анимация не отыграла
-    if (isInParentBox && !isInAnotherItem ) {
-
+    ///в родительском айтеме, просто пустой контайнер с размерами, пока голубой
+    if (isInParentBox && !isInAnotherItem && !isFromOutParent ) {
       return Container(
         color: Colors.blue,
         width: widget.itemBox.width,
@@ -386,13 +389,21 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       );
     }
 
-    ///не в родительском
-    if (!isInParentBox ) {
+    ///в родительском айтеме, просто пустой контайнер с размерами, пока голубой
+    if (isInParentBox && !isInAnotherItem &&  isFromOutParent) {
+      return Container(
+        color: Colors.red,
+        width: widget.itemBox.width,
+        height: widget.itemBox.width,
+      );
+    }
 
+    ///не в родительском, сужаем с анимацией
+    if (!isInParentBox &&  !isFromOutParent) {
       return TweenAnimationBuilder(
         tween: Tween<double>(begin: widget.itemBox.width, end: 0),
         onEnd: () {
-          // tempHeight = 0;
+          isFromOutParent = true;
         },
         duration: const Duration(milliseconds: 300),
         builder: (context, width, child) {
