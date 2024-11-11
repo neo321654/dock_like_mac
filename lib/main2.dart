@@ -94,20 +94,30 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     required T item,
     required Offset startOffset,
     required Offset endOffset,
+     bool showAnimation = true,
   }) {
-    showOverlayAnimation(
-      begin: startOffset,
-      end: endOffset,
-      context: context,
-      child: widget.builder(itemToReplace),
-      onEnd: () {
-        setState(() {
-          int index = _items.indexOf(item);
-          _items.remove(itemToReplace);
-          _items.insert(index, itemToReplace);
-        });
-      },
-    );
+    if(showAnimation){
+      showOverlayAnimation(
+        begin: startOffset,
+        end: endOffset,
+        context: context,
+        child: widget.builder(itemToReplace),
+        onEnd: () {
+          setState(() {
+            int index = _items.indexOf(item);
+            _items.remove(itemToReplace);
+            _items.insert(index, itemToReplace);
+          });
+        },
+      );
+    }else{
+      setState(() {
+        int index = _items.indexOf(item);
+        _items.remove(itemToReplace);
+        _items.insert(index, itemToReplace);
+      });
+    }
+
   }
 }
 
@@ -131,6 +141,7 @@ class DockItem<T extends Object> extends StatefulWidget {
     required T item,
     required Offset startOffset,
     required Offset endOffset,
+  bool showAnimation,
   }) replaceItem;
 
   @override
@@ -222,6 +233,7 @@ class DraggableItem<T extends Object> extends StatefulWidget {
     required T item,
     required Offset startOffset,
     required Offset endOffset,
+  bool showAnimation,
   }) replaceItem;
 
   @override
@@ -495,6 +507,7 @@ class DragTargetItem<T extends Object> extends StatefulWidget {
     required T item,
     required Offset startOffset,
     required Offset endOffset,
+    bool showAnimation,
   }) replaceItem;
 
   @override
@@ -524,7 +537,7 @@ class _DragTargetItemState<T extends Object> extends State<DragTargetItem<T>> {
   Widget builder(context, candidateData, rejectedData) {
     /// отображение когда входит нужный айтем
     if (candidateData.isNotEmpty && candidateData.first.runtimeType == T) {
-      return getWidgetInDragTarget();
+      return getWidgetInDragTarget(candidateData.first);
     }
 
     /// отображение когда выходит нужный айтем
@@ -532,6 +545,7 @@ class _DragTargetItemState<T extends Object> extends State<DragTargetItem<T>> {
       return getWidgetInDragTargetOnLeave();
     }
 
+    //todo когда бросаю или принимаю строиться дефолт но нужно оставить на смещении
     /// стандартное отображение , когда ничего не меняется
     return widget.widgetFromBuilder;
   }
@@ -574,9 +588,20 @@ class _DragTargetItemState<T extends Object> extends State<DragTargetItem<T>> {
   }
 
   ///
-  Widget getWidgetInDragTarget() {
+  Widget getWidgetInDragTarget(T item) {
     return TweenAnimationBuilder(
       tween: Tween<double>(begin: 0, end: widget.itemBox.width),
+      onEnd: (){
+
+        widget.replaceItem(
+          itemToReplace: widget.item,
+          item: item,
+          startOffset: Offset.zero,
+          endOffset: widget.itemBox.topLeft,
+          showAnimation: false,
+        );
+
+      },
       duration: const Duration(milliseconds: 300),
       builder: (context, width, child) {
         return Container(
