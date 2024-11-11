@@ -391,10 +391,19 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
 
     ///в родительском айтеме, просто пустой контайнер с размерами, пока голубой
     if (isInParentBox && !isInAnotherItem &&  isFromOutParentOrItem) {
-      return Container(
-        color: Colors.red,
-        width: widget.itemBox.width,
-        height: widget.itemBox.width,
+      return TweenAnimationBuilder(
+        tween: Tween<double>(begin: 0, end: widget.itemBox.width),
+        onEnd: () {
+           isFromOutParentOrItem = false;
+        },
+        duration: const Duration(milliseconds: 300),
+        builder: (context, width, child) {
+          return Container(
+            color: Colors.greenAccent,
+            width: width,
+            height: width,
+          );
+        },
       );
     }
 
