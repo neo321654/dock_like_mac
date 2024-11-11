@@ -245,6 +245,9 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   ///
   double tempHeight = 33;
 
+  ///
+  Offset currentPosition = Offset.zero;
+
   @override
   void didUpdateWidget(covariant DraggableItem<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -289,7 +292,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
 
     return Draggable<T>(
       data: widget.item,
-      feedback: widget.widgetFromBuilder,
+      feedback:widget.widgetFromBuilder,
       onDragUpdate: onDragUpdate,
       childWhenDragging: getChildWhenDragging(),
       onDragEnd: onDragEnd,
@@ -303,7 +306,6 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   ///
   void onDragUpdate(DragUpdateDetails details) {
     final isContainsParentBox = parentBox.contains(details.localPosition);
-
 
 
     if (isInParentBox != isContainsParentBox) {
@@ -322,16 +324,10 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
         });
       }
     }
-
-
-
-
   }
-
 
   ///
-  void onDragEnd(DraggableDetails details) {
-  }
+  void onDragEnd(DraggableDetails details) {}
 
   ///
   void onDraggableCanceled(velocity, offset) {
@@ -348,8 +344,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   }
 
   ///
-  void onDragStarted() {
-  }
+  void onDragStarted() {}
 
   ///
   void onDragCompleted() {
@@ -378,7 +373,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
     }
 
     ///в родительском айтеме но не в другом айтеме и анимация не отыграла
-    if (isInParentBox && !isInAnotherItem && tempHeight!=0) {
+    if (isInParentBox && !isInAnotherItem && tempHeight != 0) {
       return Container(
         color: Colors.blue,
         width: widget.itemBox.width,
@@ -386,31 +381,30 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
       );
     }
 
-
     ///в родительском айтеме но не в другом айтеме и анимация  отыграла
-    if (isInParentBox && !isInAnotherItem && tempHeight==0) {
+    if (isInParentBox && !isInAnotherItem && tempHeight == 0) {
       return TweenAnimationBuilder(
         tween: Tween<double>(begin: 0, end: widget.itemBox.width),
         // tween: Tween<double>(begin: itemSize.width, end: 0),
         onEnd: () {
-           tempHeight = 33;
+          tempHeight = 33;
         },
         duration: const Duration(milliseconds: 300),
         builder: (context, width, child) {
           return Container(
-            color: Colors.cyan,
+            color: Colors.black87,
             width: width,
             height: width,
           );
         },
       );
     }
+    //todo проблемма двойных состояний в точке входа нужно чтобы границы айтема использовались для реакций
+
     //todo нужно сделать состояние когда я в родителе но зашёл из-за пределов
 
     //todo наверняка нужно будет передавать состояние вниз чтобы избежать одновременных стостояний и анимаций
-    if(isInParentBox && !isInAnotherItem){
-
-    }
+    if (isInParentBox && !isInAnotherItem) {}
 
     ///если за переделами родителя
 
@@ -593,7 +587,7 @@ class _DragTargetItemState<T extends Object> extends State<DragTargetItem<T>> {
   }
 }
 
-///
+///.
 Rect getRectBox(RenderBox renderBox) {
   Rect box = renderBox.paintBounds;
   Offset topLeftGlobal = renderBox.localToGlobal(box.topLeft);
