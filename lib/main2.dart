@@ -145,7 +145,7 @@ class DockItem<T extends Object> extends StatefulWidget {
   }) replaceItem;
 
   @override
-  State<DockItem<T>> createState() => _DockItemState<T>();
+  State<DockItem<T>> createState() => _DockItemState<T> ();
 }
 
 ///
